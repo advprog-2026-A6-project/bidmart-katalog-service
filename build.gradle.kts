@@ -26,6 +26,11 @@ repositories {
     mavenCentral()
 }
 
+
+jacoco {
+    toolVersion = "0.8.12"
+}
+
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-mail")
