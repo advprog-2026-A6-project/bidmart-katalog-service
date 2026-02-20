@@ -1,0 +1,7 @@
+POST http://localhost:8080/products
+Content-Type: application/json
+
+{
+  "productName": "Keyboard",
+  "productQuantity": 10
+}
