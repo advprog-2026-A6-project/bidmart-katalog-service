@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: catalog
+  datasource:
+    url: ${SUPABASE_DB_URL:}
+    username: ${SUPABASE_DB_USERNAME:sa}
+    password: ${SUPABASE_DB_PASSWORD:}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    show-sql: true
+
+staging:
+  links:
+    frontend-url: ${FRONTEND_STAGING_URL:not-set}
+    backend-url: ${BACKEND_STAGING_URL:not-set}
+    database-url: ${DATABASE_STAGING_URL:not-set}
