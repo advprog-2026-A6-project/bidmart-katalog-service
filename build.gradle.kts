@@ -8,7 +8,7 @@ plugins {
 
 group = "id.ac.ui.cs.advprog"
 version = "0.0.1-SNAPSHOT"
-description = "bidmart-auth-service"
+description = "bidmart-katalog-service"
 
 java {
     toolchain {
