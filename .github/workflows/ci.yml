@@ -44,6 +44,13 @@ jobs:
       - name: Test + Lint + Coverage
         run: ./gradlew --no-daemon clean check jacocoTestReport
 
+      - name: SonarCloud analysis
+        run: ./gradlew --no-daemon sonar
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_ORGANIZATION: ${{ vars.SONAR_ORGANIZATION }}
+          SONAR_PROJECT_KEY: ${{ vars.SONAR_PROJECT_KEY }}
+
       - name: SonarCloud Scan
         uses: SonarSource/sonarqube-scan-action@v6
         env:
