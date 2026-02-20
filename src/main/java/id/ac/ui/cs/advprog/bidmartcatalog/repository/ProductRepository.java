@@ -1,4 +1,7 @@
 package id.ac.ui.cs.advprog.bidmartcatalog.repository;
 
-public class ProductRepository {
+import org.springframework.data.jpa.repository.JpaRepository;
+import id.ac.ui.cs.advprog.bidmartcatalog.model.Product;
+
+public interface ProductRepository extends JpaRepository<Product, String> {
 }
