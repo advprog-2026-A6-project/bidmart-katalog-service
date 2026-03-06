@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ "staging", "main", "mvp/first-feature"]
+    branches: [ "staging", "main", "mvp/impl-listing"]
   pull_request:
-    branches: [ "staging", "main", "mvp/first-feature"]
+    branches: [ "staging", "main", "mvp/impl-listing"]
 
 permissions:
   contents: read
