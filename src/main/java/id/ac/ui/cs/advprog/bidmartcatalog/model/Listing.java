@@ -2,6 +2,7 @@ package id.ac.ui.cs.advprog.bidmartcatalog.model;
 
 
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -9,6 +10,8 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "catalog_listings")
+@Setter
+@Getter
 public class Listing {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
