@@ -1,6 +1,7 @@
 package id.ac.ui.cs.advprog.bidmartcatalog.model;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,6 +9,10 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "catalog_categories")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
