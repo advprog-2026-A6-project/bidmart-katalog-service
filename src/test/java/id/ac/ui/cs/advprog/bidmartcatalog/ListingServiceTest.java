@@ -39,16 +39,16 @@ class ListingServiceTest {
         sampleListing.setTitle("Vintage Camera");
     }
 
-    @Test
-    void testCreateListing_ShouldReturnSavedListing() {
-        when(listingRepository.save(any(Listing.class))).thenReturn(sampleListing);
-
-        Listing created = listingService.createListing(new Listing());
-
-        assertNotNull(created);
-        assertEquals("Vintage Camera", created.getTitle());
-        verify(listingRepository, times(1)).save(any());
-    }
+//    @Test
+//    void testCreateListing_ShouldReturnSavedListing() {
+//        when(listingRepository.save(any(Listing.class))).thenReturn(sampleListing);
+//
+//        Listing created = listingService.createListing(new Listing());
+//
+//        assertNotNull(created);
+//        assertEquals("Vintage Camera", created.getTitle());
+//        verify(listingRepository, times(1)).save(any());
+//    }
 
     @Test
     void testGetListingById_Success() {

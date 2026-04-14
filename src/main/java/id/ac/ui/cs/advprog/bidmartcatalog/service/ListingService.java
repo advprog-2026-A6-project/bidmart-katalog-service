@@ -1,6 +1,10 @@
 package id.ac.ui.cs.advprog.bidmartcatalog.service;
 
+import id.ac.ui.cs.advprog.bidmartcatalog.dto.CreateListingRequest;
 import id.ac.ui.cs.advprog.bidmartcatalog.model.Category;
+import id.ac.ui.cs.advprog.bidmartcatalog.model.ListingStatus;
+import id.ac.ui.cs.advprog.bidmartcatalog.repository.CategoryRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,8 +20,32 @@ import id.ac.ui.cs.advprog.bidmartcatalog.repository.ListingRepository;
 public class ListingService {
 
     private final ListingRepository listingRepository;
+    private final CategoryRepository categoryRepository;
 
-    public Listing createListing(Listing listing) {
+    @Transactional
+    public Listing createListing(CreateListingRequest request, UUID sellerId) {
+        Category category = categoryRepository.findById(request.getCategoryId())
+                .orElseThrow(() -> new RuntimeException("Category not found"));
+
+        // Validation: memastikan tidak memilih category parent.
+        if (!category.getChildren().isEmpty()) {
+            throw new RuntimeException("Please select a more specific sub-category.");
+        }
+
+        Listing listing = new Listing();
+        listing.setTitle(request.getTitle());
+        listing.setDescription(request.getDescription());
+        listing.setStartingPrice(request.getStartingPrice());
+        listing.setCurrentPrice(request.getStartingPrice());
+        listing.setImageUrl(request.getImageUrl());
+        listing.setStartTime(request.getStartTime());
+        listing.setEndTime(request.getEndTime());
+
+        listing.setCategory(category);
+
+        listing.setSellerId(sellerId);
+        listing.setStatus(ListingStatus.ACTIVE);
+
         return listingRepository.save(listing);
     }
 

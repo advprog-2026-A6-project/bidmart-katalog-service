@@ -1,5 +1,8 @@
 package id.ac.ui.cs.advprog.bidmartcatalog.controller;
 
+import id.ac.ui.cs.advprog.bidmartcatalog.dto.CreateListingRequest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import lombok.RequiredArgsConstructor;
 import java.util.List;
@@ -16,8 +19,11 @@ public class ListingController {
     private final ListingService listingService;
 
     @PostMapping
-    public Listing create(@RequestBody Listing listing) {
-        return listingService.createListing(listing);
+    public ResponseEntity<Listing> create(@RequestBody CreateListingRequest request) {
+        // change this for milestone 75%
+        UUID mockSellerId = UUID.randomUUID();
+        Listing listing = listingService.createListing(request, mockSellerId);
+        return new ResponseEntity<>(listing, HttpStatus.CREATED);
     }
 
     @GetMapping
