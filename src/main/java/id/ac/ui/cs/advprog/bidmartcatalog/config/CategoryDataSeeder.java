@@ -6,32 +6,43 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+import java.util.List;
+
 @Component
 @RequiredArgsConstructor
 public class CategoryDataSeeder implements CommandLineRunner {
 
-    private final CategoryRepository repo;
+    private final CategoryRepository categoryRepository;
 
     @Override
     public void run(String... args) {
-        if (repo.count() == 0) {
-            Category electronics = new Category();
-            electronics.setName("Elektronik");
-            repo.save(electronics);
+        if (categoryRepository.count() == 0) {
+            seedCategories();
+        }
+    }
 
-            Category phone = new Category();
-            phone.setName("Handphone");
-            phone.setParent(electronics);
-            repo.save(phone);
+    private void seedCategories() {
+        createCategoryWithSubs("Electronics", Arrays.asList("Smartphones", "Laptops"));
+        createCategoryWithSubs("Fashion", Arrays.asList("Clothing", "Shoes"));
+        createCategoryWithSubs("Home & Living", Arrays.asList("Furniture", "Kitchenware"));
+        createCategoryWithSubs("Hobbies & Collectibles", Arrays.asList("Action Figures", "Trading Cards"));
+        createCategoryWithSubs("Automotive", Arrays.asList("Car Parts", "Motorcycle Accessories"));
+        createCategoryWithSubs("Others", Arrays.asList("General", "Misc Services"));
 
-            Category smartphone = new Category();
-            smartphone.setName("Smartphone");
-            smartphone.setParent(phone);
-            repo.save(smartphone);
+        System.out.println("Marketplace categories intialized.");
+    }
 
-            System.out.println("Database seeded with initial categories!");
-        } else {
-            System.out.println("Categories already exist, skipping seed.");
+    private void createCategoryWithSubs(String parentName, List<String> subNames) {
+        Category parent = new Category();
+        parent.setName(parentName);
+        parent = categoryRepository.save(parent);
+
+        for (String subName : subNames) {
+            Category sub = new Category();
+            sub.setName(subName);
+            sub.setParent(parent);
+            categoryRepository.save(sub);
         }
     }
 }
