@@ -26,6 +26,14 @@ public class ListingController {
         return new ResponseEntity<>(listing, HttpStatus.CREATED);
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<List<Listing>> search(
+            @RequestParam(required = false) UUID categoryId
+    ) {
+        List<Listing> results = listingService.searchListings(categoryId);
+        return ResponseEntity.ok(results);
+    }
+
     @GetMapping
     public List<Listing> getAll() {
         return listingService.getAllListings();
@@ -40,4 +48,6 @@ public class ListingController {
     public void delete(@PathVariable UUID id) {
         listingService.deleteListing(id);
     }
+
+
 }

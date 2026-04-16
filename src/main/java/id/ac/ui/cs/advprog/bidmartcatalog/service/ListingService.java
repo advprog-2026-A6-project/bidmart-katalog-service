@@ -5,8 +5,10 @@ import id.ac.ui.cs.advprog.bidmartcatalog.model.Category;
 import id.ac.ui.cs.advprog.bidmartcatalog.model.ListingStatus;
 import id.ac.ui.cs.advprog.bidmartcatalog.repository.CategoryRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -61,4 +63,15 @@ public class ListingService {
     public void deleteListing(UUID id) {
         listingRepository.deleteById(id);
     }
+
+    public List<Listing> searchListings(UUID categoryId) {
+        Specification<Listing> spec = (root, query, cb) -> cb.conjunction();
+
+        if (categoryId != null) {
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("category").get("id"), categoryId));
+        }
+
+        return listingRepository.findAll(spec);
+    }
+
 }
