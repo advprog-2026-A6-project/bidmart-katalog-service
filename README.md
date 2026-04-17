@@ -45,13 +45,3 @@ This phase shifts from simple data entry to actual business rules, search strate
 
 [ ] Cancellation Constraint: Similar to the update logic, enforce the rule that cancellation is only allowed if no bids exist (mock this validation for now).
 
-# What to Share for Code Review
-To give you the most accurate feedback on whether your 25% implementation is heading in the right direction, I need to see how your foundational layers interact. Please share the following Java/Spring Boot files:
-
-The Entities (Category.java, Listing.java): I want to check your JPA annotations, relationships (@ManyToOne, @OneToMany), and how you mapped the hierarchical structure.
-
-The Repositories (CategoryRepository.java, ListingRepository.java): To see if you are using standard Spring Data JPA methods or if you have started writing custom JPQL queries.
-
-The Service Layer (ListingService.java): This is the most critical part. I want to see how you are handling the business logic for creating a listing and assigning it to a category.
-
-DTOs (Data Transfer Objects): If you are using request/response payloads (e.g., CreateListingRequest.java), share those so I can see how you are handling incoming data before it hits the entity.
