@@ -1,15 +1,18 @@
-FROM eclipse-temurin:17-jdk-jammy AS build
+# STAGE 1: Build
+FROM eclipse-temurin:21-jdk-jammy AS build
 WORKDIR /app
 COPY . .
 RUN chmod +x gradlew
 RUN ./gradlew clean build -x test
 
-FROM eclipse-temurin:17-jre-jammy
+# STAGE 2: Run
+FROM eclipse-temurin:21-jre-jammy
 WORKDIR /app
-COPY --from=build /app/build/libs/*.jar app.jar
 
-# Hugging Face usually listens on port 7860
+# Grabs only the executable jar and renames it to app.jar
+COPY --from=build /app/build/libs/*[!plain].jar app.jar
+
+# Standard Hugging Face Port configuration
 EXPOSE 7860
-ENV SERVER_PORT=7860
-
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# This forces Spring Boot to use the port Hugging Face expects
+ENTRYPOINT ["java", "-Dserver.port=7860", "-jar", "app.jar"]
