@@ -1,8 +1,16 @@
 package id.ac.ui.cs.advprog.bidmartcatalog.service;
 
+import id.ac.ui.cs.advprog.bidmartcatalog.dto.CreateListingRequest;
+import id.ac.ui.cs.advprog.bidmartcatalog.dto.ListingDTO;
 import id.ac.ui.cs.advprog.bidmartcatalog.model.Category;
+import id.ac.ui.cs.advprog.bidmartcatalog.model.ListingStatus;
+import id.ac.ui.cs.advprog.bidmartcatalog.repository.CategoryRepository;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -16,13 +24,35 @@ import id.ac.ui.cs.advprog.bidmartcatalog.repository.ListingRepository;
 public class ListingService {
 
     private final ListingRepository listingRepository;
+    private final CategoryRepository categoryRepository;
 
-    public Listing createListing(Listing listing) {
+    @Transactional
+    public Listing createListing(CreateListingRequest request, UUID sellerId) {
+        Category category = categoryRepository.findById(request.getCategoryId())
+                .orElseThrow(() -> new RuntimeException("Category not found"));
+
+        Listing listing = new Listing();
+        listing.setTitle(request.getTitle());
+        listing.setDescription(request.getDescription());
+        listing.setStartingPrice(request.getStartingPrice());
+        listing.setCurrentPrice(request.getStartingPrice());
+        listing.setImageUrl(request.getImageUrl());
+        listing.setStartTime(request.getStartTime());
+        listing.setEndTime(request.getEndTime());
+
+        listing.setCategory(category);
+
+        listing.setSellerId(sellerId);
+        listing.setStatus(ListingStatus.ACTIVE);
+
         return listingRepository.save(listing);
     }
 
-    public List<Listing> getAllListings() {
-        return listingRepository.findAll();
+    @Transactional(readOnly = true)
+    public List<ListingDTO> getAllListings() {
+        return listingRepository.findAll().stream()
+                .map(ListingDTO::fromEntity)
+                .toList();
     }
 
     public Listing getListingById(UUID id) {
@@ -33,4 +63,50 @@ public class ListingService {
     public void deleteListing(UUID id) {
         listingRepository.deleteById(id);
     }
+
+    @Transactional(readOnly = true)
+    public List<ListingDTO> searchListings(
+            UUID categoryId,
+            BigDecimal minPrice,
+            BigDecimal maxPrice,
+            String keyword,
+            LocalDateTime endBefore) {
+
+        Specification<Listing> spec = (root, query, cb) -> cb.conjunction();
+
+        if (categoryId != null) {
+
+            List<UUID> allTargetIds = categoryRepository.findAllDescendantIds(categoryId);
+
+            spec = spec.and((root, query, cb) ->
+                    root.get("category").get("id").in(allTargetIds));
+        }
+
+        if (minPrice != null) {
+            spec = spec.and((root, query, cb) -> cb.greaterThanOrEqualTo(root.get("currentPrice"), minPrice));
+        }
+        if (maxPrice != null) {
+            spec = spec.and((root, query, cb) -> cb.lessThanOrEqualTo(root.get("currentPrice"), maxPrice));
+        }
+
+        if (keyword != null && !keyword.isBlank()) {
+            String pattern = "%" + keyword.toLowerCase() + "%";
+            spec = spec.and((root, query, cb) ->
+                    cb.or(
+                            cb.like(cb.lower(root.get("title")), pattern),
+                            cb.like(cb.lower(root.get("description")), pattern)
+                    )
+            );
+        }
+
+        if (endBefore != null) {
+            spec = spec.and((root, query, cb) -> cb.lessThanOrEqualTo(root.get("endTime"), endBefore));
+        }
+
+
+        return listingRepository.findAll(spec).stream()
+                .map(ListingDTO::fromEntity)
+                .toList();
+    }
+
 }

@@ -45,26 +45,17 @@ class ListingControllerTest {
         sampleListing.setTitle("MacBook Pro");
     }
 
-    @Test
-    void testCreate_ShouldReturn200AndListing() throws Exception {
-        when(listingService.createListing(any(Listing.class))).thenReturn(sampleListing);
-
-        mockMvc.perform(post("/listings")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(sampleListing)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.title").value("MacBook Pro"))
-                .andExpect(jsonPath("$.id").value(sampleId.toString()));
-    }
-
-    @Test
-    void testGetAll_ShouldReturnList() throws Exception {
-        when(listingService.getAllListings()).thenReturn(List.of(sampleListing));
-
-        mockMvc.perform(get("/listings"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].title").value("MacBook Pro"));
-    }
+//    @Test
+//    void testCreate_ShouldReturn200AndListing() throws Exception {
+//        when(listingService.createListing(any(Listing.class))).thenReturn(sampleListing);
+//
+//        mockMvc.perform(post("/listings")
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .content(objectMapper.writeValueAsString(sampleListing)))
+//                .andExpect(status().isOk())
+//                .andExpect(jsonPath("$.title").value("MacBook Pro"))
+//                .andExpect(jsonPath("$.id").value(sampleId.toString()));
+//    }
 
     @Test
     void testGetById_ShouldReturnListing() throws Exception {

@@ -21,6 +21,7 @@ public class Listing {
     private String description;
     private BigDecimal startingPrice;
     private BigDecimal currentPrice;
+    private String imageUrl;
 
     @Enumerated(EnumType.STRING)
     private ListingStatus status;
