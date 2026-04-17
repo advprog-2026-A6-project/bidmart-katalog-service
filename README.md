@@ -35,13 +35,5 @@ This phase shifts from simple data entry to actual business rules, search strate
 
 [x] Search Endpoint: Create the GET endpoint that accepts these dynamic parameters (e.g., query strings) and returns paginated results.
 
-## Business Logic: Updates & Cancellations
 
-[ ] Update Logic: Implement a method allowing sellers to update only the description and image of a listing.
-
-[ ] Update Constraint: Add a temporary internal check to ensure updates only happen when the listing is in a DRAFT or ACTIVE state (later, you will connect this to the Auction module to verify 0 bids).
-
-[ ] Cancellation Logic: Implement the feature for sellers to cancel a listing. Update the database status to CANCELLED.
-
-[ ] Cancellation Constraint: Similar to the update logic, enforce the rule that cancellation is only allowed if no bids exist (mock this validation for now).
 
