@@ -1,5 +1,6 @@
 package id.ac.ui.cs.advprog.bidmartcatalog;
 
+import id.ac.ui.cs.advprog.bidmartcatalog.dto.ListingDTO;
 import id.ac.ui.cs.advprog.bidmartcatalog.model.Listing;
 import id.ac.ui.cs.advprog.bidmartcatalog.repository.ListingRepository;
 import id.ac.ui.cs.advprog.bidmartcatalog.service.ListingService;
@@ -75,7 +76,7 @@ class ListingServiceTest {
     void testGetAllListings_ShouldReturnList() {
         when(listingRepository.findAll()).thenReturn(List.of(sampleListing));
 
-        List<Listing> all = listingService.getAllListings();
+        List<ListingDTO> all = listingService.getAllListings();
 
         assertFalse(all.isEmpty());
         assertEquals(1, all.size());

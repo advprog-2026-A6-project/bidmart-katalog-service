@@ -33,7 +33,7 @@ This phase shifts from simple data entry to actual business rules, search strate
 
 [x] Specification/Criteria Builder: Implement dynamic queries to allow buyers to search using any combination of: keyword, category, price range, and auction end time.
 
-[ ] Search Endpoint: Create the GET endpoint that accepts these dynamic parameters (e.g., query strings) and returns paginated results.
+[x] Search Endpoint: Create the GET endpoint that accepts these dynamic parameters (e.g., query strings) and returns paginated results.
 
 ## Business Logic: Updates & Cancellations
 

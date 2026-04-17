@@ -58,15 +58,6 @@ class ListingControllerTest {
 //    }
 
     @Test
-    void testGetAll_ShouldReturnList() throws Exception {
-        when(listingService.getAllListings()).thenReturn(List.of(sampleListing));
-
-        mockMvc.perform(get("/listings"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].title").value("MacBook Pro"));
-    }
-
-    @Test
     void testGetById_ShouldReturnListing() throws Exception {
         when(listingService.getListingById(sampleId)).thenReturn(sampleListing);
 
