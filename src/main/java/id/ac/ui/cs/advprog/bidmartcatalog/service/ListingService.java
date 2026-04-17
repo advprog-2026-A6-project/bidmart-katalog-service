@@ -10,6 +10,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -64,7 +65,13 @@ public class ListingService {
     }
 
     @Transactional(readOnly = true)
-    public List<ListingDTO> searchListings(UUID categoryId) {
+    public List<ListingDTO> searchListings(
+            UUID categoryId,
+            BigDecimal minPrice,
+            BigDecimal maxPrice,
+            String keyword,
+            LocalDateTime endBefore) {
+
         Specification<Listing> spec = (root, query, cb) -> cb.conjunction();
 
         if (categoryId != null) {
@@ -73,6 +80,27 @@ public class ListingService {
 
             spec = spec.and((root, query, cb) ->
                     root.get("category").get("id").in(allTargetIds));
+        }
+
+        if (minPrice != null) {
+            spec = spec.and((root, query, cb) -> cb.greaterThanOrEqualTo(root.get("currentPrice"), minPrice));
+        }
+        if (maxPrice != null) {
+            spec = spec.and((root, query, cb) -> cb.lessThanOrEqualTo(root.get("currentPrice"), maxPrice));
+        }
+
+        if (keyword != null && !keyword.isBlank()) {
+            String pattern = "%" + keyword.toLowerCase() + "%";
+            spec = spec.and((root, query, cb) ->
+                    cb.or(
+                            cb.like(cb.lower(root.get("title")), pattern),
+                            cb.like(cb.lower(root.get("description")), pattern)
+                    )
+            );
+        }
+
+        if (endBefore != null) {
+            spec = spec.and((root, query, cb) -> cb.lessThanOrEqualTo(root.get("endTime"), endBefore));
         }
 
 
