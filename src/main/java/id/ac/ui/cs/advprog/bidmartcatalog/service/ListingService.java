@@ -1,10 +1,11 @@
 package id.ac.ui.cs.advprog.bidmartcatalog.service;
 
 import id.ac.ui.cs.advprog.bidmartcatalog.dto.CreateListingRequest;
+import id.ac.ui.cs.advprog.bidmartcatalog.dto.ListingDTO;
 import id.ac.ui.cs.advprog.bidmartcatalog.model.Category;
 import id.ac.ui.cs.advprog.bidmartcatalog.model.ListingStatus;
 import id.ac.ui.cs.advprog.bidmartcatalog.repository.CategoryRepository;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -29,11 +30,6 @@ public class ListingService {
         Category category = categoryRepository.findById(request.getCategoryId())
                 .orElseThrow(() -> new RuntimeException("Category not found"));
 
-        // Validation: memastikan tidak memilih category parent.
-        if (!category.getChildren().isEmpty()) {
-            throw new RuntimeException("Please select a more specific sub-category.");
-        }
-
         Listing listing = new Listing();
         listing.setTitle(request.getTitle());
         listing.setDescription(request.getDescription());
@@ -51,8 +47,11 @@ public class ListingService {
         return listingRepository.save(listing);
     }
 
-    public List<Listing> getAllListings() {
-        return listingRepository.findAll();
+    @Transactional(readOnly = true)
+    public List<ListingDTO> getAllListings() {
+        return listingRepository.findAll().stream()
+                .map(ListingDTO::fromEntity)
+                .toList();
     }
 
     public Listing getListingById(UUID id) {
@@ -64,14 +63,22 @@ public class ListingService {
         listingRepository.deleteById(id);
     }
 
-    public List<Listing> searchListings(UUID categoryId) {
+    @Transactional(readOnly = true)
+    public List<ListingDTO> searchListings(UUID categoryId) {
         Specification<Listing> spec = (root, query, cb) -> cb.conjunction();
 
         if (categoryId != null) {
-            spec = spec.and((root, query, cb) -> cb.equal(root.get("category").get("id"), categoryId));
+
+            List<UUID> allTargetIds = categoryRepository.findAllDescendantIds(categoryId);
+
+            spec = spec.and((root, query, cb) ->
+                    root.get("category").get("id").in(allTargetIds));
         }
 
-        return listingRepository.findAll(spec);
+
+        return listingRepository.findAll(spec).stream()
+                .map(ListingDTO::fromEntity)
+                .toList();
     }
 
 }
