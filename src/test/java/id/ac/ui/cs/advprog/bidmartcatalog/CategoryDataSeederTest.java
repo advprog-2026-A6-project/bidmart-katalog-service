@@ -22,27 +22,31 @@ class CategoryDataSeederTest {
     private CategoryDataSeeder categoryDataSeeder;
 
     @Test
-    void testRun_WhenDatabaseIsEmpty_ShouldSaveCategories() throws Exception {
-        // Arrange: count is 0
+    void testRun_WhenDatabaseIsEmpty_ShouldSeedAllCategories() throws Exception {
+        // Arrange
         when(repo.count()).thenReturn(0L);
+
+        // Important: return the same object so parent assignment works safely
+        when(repo.save(any(Category.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
         // Act
         categoryDataSeeder.run();
 
-        // Assert: Verify save was called 3 times (Elektronik, Handphone, Smartphone)
-        verify(repo, times(3)).save(any(Category.class));
+        // Assert
+        verify(repo, times(18)).save(any(Category.class));
         verify(repo, times(1)).count();
     }
 
     @Test
     void testRun_WhenDatabaseIsNotEmpty_ShouldNotSaveAnything() throws Exception {
-        // Arrange: count is 5 (already has data)
+        // Arrange
         when(repo.count()).thenReturn(5L);
 
         // Act
         categoryDataSeeder.run();
 
-        // Assert: Verify save was never called
+        // Assert
         verify(repo, never()).save(any(Category.class));
         verify(repo, times(1)).count();
     }
