@@ -6,6 +6,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 import lombok.RequiredArgsConstructor;
 
 import java.math.BigDecimal;
@@ -15,6 +16,7 @@ import java.util.UUID;
 
 import id.ac.ui.cs.advprog.bidmartcatalog.model.Listing;
 import id.ac.ui.cs.advprog.bidmartcatalog.service.ListingService;
+
 
 @RestController
 @RequestMapping("/listings")
@@ -60,6 +62,11 @@ public class ListingController {
     @DeleteMapping("/{id}")
     public void delete(@PathVariable UUID id) {
         listingService.deleteListing(id);
+    }
+
+    @PostMapping("/{listingId}/cancel")
+    public void cancelListing(@PathVariable UUID listingId) {
+        listingService.cancelListing(listingId);
     }
 
 
