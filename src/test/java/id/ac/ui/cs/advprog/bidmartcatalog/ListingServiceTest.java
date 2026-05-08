@@ -172,4 +172,6 @@ class ListingServiceTest {
         verify(categoryRepository, times(1)).findAllDescendantIds(categoryId);
         verify(listingRepository, times(1)).findAll(any(Specification.class));
     }
+
+
 }

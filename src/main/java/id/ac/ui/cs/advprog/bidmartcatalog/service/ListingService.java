@@ -1,6 +1,7 @@
 package id.ac.ui.cs.advprog.bidmartcatalog.service;
 
 import id.ac.ui.cs.advprog.bidmartcatalog.dto.CreateListingRequest;
+import id.ac.ui.cs.advprog.bidmartcatalog.dto.ListingBidStatusResponse;
 import id.ac.ui.cs.advprog.bidmartcatalog.dto.ListingDTO;
 import id.ac.ui.cs.advprog.bidmartcatalog.model.Category;
 import id.ac.ui.cs.advprog.bidmartcatalog.model.ListingStatus;
@@ -18,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 
 import id.ac.ui.cs.advprog.bidmartcatalog.model.Listing;
 import id.ac.ui.cs.advprog.bidmartcatalog.repository.ListingRepository;
+import org.springframework.web.client.RestTemplate;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +27,9 @@ public class ListingService {
 
     private final ListingRepository listingRepository;
     private final CategoryRepository categoryRepository;
+    private final RestTemplate restTemplate;
+
+    private final String AUCTION_SERVICE_URL = "http://localhost:8082/api/auctions/internal/listings/";
 
     @Transactional
     public Listing createListing(CreateListingRequest request, UUID sellerId) {
@@ -107,6 +112,24 @@ public class ListingService {
         return listingRepository.findAll(spec).stream()
                 .map(ListingDTO::fromEntity)
                 .toList();
+    }
+
+    public void cancelListing(UUID listingId) {
+        Listing listing = listingRepository.findById(listingId)
+                .orElseThrow(() -> new RuntimeException("Listing not found"));
+
+        String url = AUCTION_SERVICE_URL + listingId + "/bids/status";
+        ListingBidStatusResponse response = restTemplate.getForObject(url, ListingBidStatusResponse.class);
+        assert response != null;
+        boolean hasBids = response.isHasBids();
+
+        if (hasBids) {
+            // throw error
+            throw new IllegalStateException("Gagal membatalkan: Listing sudah memiliki penawaran.");
+        } else {
+            listing.setStatus(ListingStatus.CANCELLED);
+            listingRepository.save(listing);
+        }
     }
 
 }
