@@ -41,7 +41,7 @@ public class ListingService {
         listing.setTitle(request.getTitle());
         listing.setDescription(request.getDescription());
         listing.setStartingPrice(request.getStartingPrice());
-        listing.setReservePrice(request.getStartingPrice());
+        listing.setReservePrice(request.getReservePrice());
         listing.setImageUrl(request.getImageUrl());
         listing.setStartTime(request.getStartTime());
         listing.setEndTime(request.getEndTime());
@@ -66,7 +66,7 @@ public class ListingService {
                 .orElseThrow(() -> new RuntimeException("Listing not found"));
     }
 
-    public List<ListingDTO> updateListing(UpdateListingRequest request, UUID listingId) {
+    public ListingDTO updateListing(UpdateListingRequest request, UUID listingId) {
         Listing listing = listingRepository.findById(listingId)
                 .orElseThrow(() -> new RuntimeException("Listing not found"));
 
@@ -82,9 +82,8 @@ public class ListingService {
             listingRepository.save(listing);
         }
 
-        return listingRepository.findById(listingId).stream()
-                .map(ListingDTO::fromEntity)
-                .toList();
+        return (ListingDTO) listingRepository.findById(listingId).stream()
+                .map(ListingDTO::fromEntity);
     }
 
     public void deleteListing(UUID id) {

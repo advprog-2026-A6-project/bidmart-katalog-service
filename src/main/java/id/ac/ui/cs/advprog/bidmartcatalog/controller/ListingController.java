@@ -57,7 +57,7 @@ public class ListingController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<List<ListingDTO>> updateListing(
+    public ResponseEntity<ListingDTO> updateListing(
             @PathVariable UUID id,
             @RequestBody @Valid UpdateListingRequest request) {
         return ResponseEntity.ok(listingService.updateListing(request, id));
