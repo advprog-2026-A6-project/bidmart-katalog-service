@@ -20,7 +20,7 @@ public class ListingDTO {
     private String title;
     private String description;
     private BigDecimal startingPrice;
-    private BigDecimal currentPrice;
+    private BigDecimal reservePrice;
     private String imageUrl;
     private ListingStatus status;
     private UUID sellerId;
@@ -37,7 +37,7 @@ public class ListingDTO {
                 .title(listing.getTitle())
                 .description(listing.getDescription())
                 .startingPrice(listing.getStartingPrice())
-                .currentPrice(listing.getCurrentPrice())
+                .reservePrice(listing.getReservePrice())
                 .imageUrl(listing.getImageUrl())
                 .status(listing.getStatus())
                 .sellerId(listing.getSellerId())

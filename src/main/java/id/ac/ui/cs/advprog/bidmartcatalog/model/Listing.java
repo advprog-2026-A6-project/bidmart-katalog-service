@@ -20,7 +20,7 @@ public class Listing {
     private String title;
     private String description;
     private BigDecimal startingPrice;
-    private BigDecimal currentPrice;
+    private BigDecimal reservePrice;
     private String imageUrl;
 
     @Enumerated(EnumType.STRING)

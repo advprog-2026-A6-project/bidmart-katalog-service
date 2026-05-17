@@ -40,7 +40,7 @@ public class ListingService {
         listing.setTitle(request.getTitle());
         listing.setDescription(request.getDescription());
         listing.setStartingPrice(request.getStartingPrice());
-        listing.setCurrentPrice(request.getStartingPrice());
+        listing.setReservePrice(request.getStartingPrice());
         listing.setImageUrl(request.getImageUrl());
         listing.setStartTime(request.getStartTime());
         listing.setEndTime(request.getEndTime());
@@ -88,10 +88,10 @@ public class ListingService {
         }
 
         if (minPrice != null) {
-            spec = spec.and((root, query, cb) -> cb.greaterThanOrEqualTo(root.get("currentPrice"), minPrice));
+            spec = spec.and((root, query, cb) -> cb.greaterThanOrEqualTo(root.get("reservePrice"), minPrice));
         }
         if (maxPrice != null) {
-            spec = spec.and((root, query, cb) -> cb.lessThanOrEqualTo(root.get("currentPrice"), maxPrice));
+            spec = spec.and((root, query, cb) -> cb.lessThanOrEqualTo(root.get("reservePrice"), maxPrice));
         }
 
         if (keyword != null && !keyword.isBlank()) {
