@@ -65,6 +65,15 @@ public class ListingService {
                 .orElseThrow(() -> new RuntimeException("Listing not found"));
     }
 
+    public void updateListing(UUID listingId) {
+        Listing listing = listingRepository.findById(listingId)
+                .orElseThrow(() -> new RuntimeException("Listing not found"));
+
+        String url = AUCTION_SERVICE_URL + listingId + "/bids/status";
+        ListingBidStatusResponse response = restTemplate.getForObject(url, ListingBidStatusResponse.class);
+        assert response != null;
+    }
+
     public void deleteListing(UUID id) {
         listingRepository.deleteById(id);
     }
