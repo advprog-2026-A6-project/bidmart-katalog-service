@@ -66,7 +66,7 @@ public class ListingService {
                 .orElseThrow(() -> new RuntimeException("Listing not found"));
     }
 
-    public void updateListing(UpdateListingRequest request, UUID listingId) {
+    public List<ListingDTO> updateListing(UpdateListingRequest request, UUID listingId) {
         Listing listing = listingRepository.findById(listingId)
                 .orElseThrow(() -> new RuntimeException("Listing not found"));
 
@@ -81,6 +81,10 @@ public class ListingService {
             listing.setImageUrl(request.getImageUrl());
             listingRepository.save(listing);
         }
+
+        return listingRepository.findById(listingId).stream()
+                .map(ListingDTO::fromEntity)
+                .toList();
     }
 
     public void deleteListing(UUID id) {
