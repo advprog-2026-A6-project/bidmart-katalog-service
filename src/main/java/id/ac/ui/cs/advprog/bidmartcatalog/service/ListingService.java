@@ -1,12 +1,11 @@
 package id.ac.ui.cs.advprog.bidmartcatalog.service;
 
-import id.ac.ui.cs.advprog.bidmartcatalog.dto.CreateListingRequest;
-import id.ac.ui.cs.advprog.bidmartcatalog.dto.ListingBidStatusResponse;
-import id.ac.ui.cs.advprog.bidmartcatalog.dto.ListingDTO;
-import id.ac.ui.cs.advprog.bidmartcatalog.dto.UpdateListingRequest;
+import id.ac.ui.cs.advprog.bidmartcatalog.config.RabbitConfig;
+import id.ac.ui.cs.advprog.bidmartcatalog.dto.*;
 import id.ac.ui.cs.advprog.bidmartcatalog.model.Category;
 import id.ac.ui.cs.advprog.bidmartcatalog.model.ListingStatus;
 import id.ac.ui.cs.advprog.bidmartcatalog.repository.CategoryRepository;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -151,6 +150,15 @@ public class ListingService {
             listing.setStatus(ListingStatus.CANCELLED);
             listingRepository.save(listing);
         }
+    }
+
+    @RabbitListener(queues = RabbitConfig.QUEUE)
+    public void handleBidPlacedEvent(BidPlacedEvent event) {
+        listingRepository.findById(event.getListingId())
+                .ifPresent(listing -> {
+                    listing.setReservePrice(event.getBidAmount());
+                    listingRepository.save(listing);
+                });
     }
 
 }
