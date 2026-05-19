@@ -5,6 +5,7 @@ import id.ac.ui.cs.advprog.bidmartcatalog.dto.*;
 import id.ac.ui.cs.advprog.bidmartcatalog.model.Category;
 import id.ac.ui.cs.advprog.bidmartcatalog.model.ListingStatus;
 import id.ac.ui.cs.advprog.bidmartcatalog.repository.CategoryRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.jpa.domain.Specification;
@@ -29,7 +30,8 @@ public class ListingService {
     private final CategoryRepository categoryRepository;
     private final RestTemplate restTemplate;
 
-    private final String AUCTION_SERVICE_URL = "http://localhost:8082/api/auctions/internal/listings/";
+    @Value("${service.auction.url}")
+    private String auctionServiceUrl;
 
     @Transactional
     public Listing createListing(CreateListingRequest request, UUID sellerId) {
@@ -69,20 +71,19 @@ public class ListingService {
         Listing listing = listingRepository.findById(listingId)
                 .orElseThrow(() -> new RuntimeException("Listing not found"));
 
-        String url = AUCTION_SERVICE_URL + listingId + "/bids/status";
+        String url = auctionServiceUrl + listingId + "/bids/status";
         ListingBidStatusResponse response = restTemplate.getForObject(url, ListingBidStatusResponse.class);
         assert response != null;
 
         if (response.isHasBids()) {
             throw new IllegalStateException("Gagal memperbarui: Listing sudah memiliki penawaran.");
-        } else {
-            listing.setDescription(request.getDescription());
-            listing.setImageUrl(request.getImageUrl());
-            listingRepository.save(listing);
         }
 
-        return (ListingDTO) listingRepository.findById(listingId).stream()
-                .map(ListingDTO::fromEntity);
+        listing.setDescription(request.getDescription());
+        listing.setImageUrl(request.getImageUrl());
+        listingRepository.save(listing);
+
+        return ListingDTO.fromEntity(listing);
     }
 
     public void deleteListing(UUID id) {
@@ -138,7 +139,7 @@ public class ListingService {
         Listing listing = listingRepository.findById(listingId)
                 .orElseThrow(() -> new RuntimeException("Listing not found"));
 
-        String url = AUCTION_SERVICE_URL + listingId + "/bids/status";
+        String url = auctionServiceUrl + listingId + "/bids/status";
         ListingBidStatusResponse response = restTemplate.getForObject(url, ListingBidStatusResponse.class);
         assert response != null;
         boolean hasBids = response.isHasBids();
