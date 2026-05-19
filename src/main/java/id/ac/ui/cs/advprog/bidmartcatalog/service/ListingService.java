@@ -155,11 +155,14 @@ public class ListingService {
 
     @RabbitListener(queues = RabbitConfig.QUEUE)
     public void handleBidPlacedEvent(BidPlacedEvent event) {
-        listingRepository.findById(event.getListingId())
-                .ifPresent(listing -> {
-                    listing.setCurrentPrice(event.getBidAmount());
-                    listingRepository.save(listing);
-                });
+        Listing listing = listingRepository.findById(event.getListingId())
+                .orElseThrow(() ->
+                        new IllegalArgumentException(
+                                "Listing not found: " + event.getListingId()
+                        )
+                );
+        listing.setCurrentPrice(event.getBidAmount());
+        listingRepository.save(listing);
     }
 
 }
