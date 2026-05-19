@@ -41,12 +41,12 @@ public class ListingService {
         listing.setDescription(request.getDescription());
         listing.setStartingPrice(request.getStartingPrice());
         listing.setReservePrice(request.getReservePrice());
+        listing.setCurrentPrice(request.getCurrentPrice());
         listing.setImageUrl(request.getImageUrl());
         listing.setStartTime(request.getStartTime());
         listing.setEndTime(request.getEndTime());
 
         listing.setCategory(category);
-
         listing.setSellerId(sellerId);
         listing.setStatus(ListingStatus.ACTIVE);
 
@@ -156,7 +156,7 @@ public class ListingService {
     public void handleBidPlacedEvent(BidPlacedEvent event) {
         listingRepository.findById(event.getListingId())
                 .ifPresent(listing -> {
-                    listing.setReservePrice(event.getBidAmount());
+                    listing.setCurrentPrice(event.getBidAmount());
                     listingRepository.save(listing);
                 });
     }
