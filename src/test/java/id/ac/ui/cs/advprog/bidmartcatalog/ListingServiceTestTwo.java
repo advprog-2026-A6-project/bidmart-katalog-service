@@ -1,6 +1,7 @@
 package id.ac.ui.cs.advprog.bidmartcatalog;
 
 import id.ac.ui.cs.advprog.bidmartcatalog.dto.ListingBidStatusResponse;
+import id.ac.ui.cs.advprog.bidmartcatalog.dto.UpdateListingRequest;
 import id.ac.ui.cs.advprog.bidmartcatalog.model.Listing;
 import id.ac.ui.cs.advprog.bidmartcatalog.model.ListingStatus;
 import id.ac.ui.cs.advprog.bidmartcatalog.repository.CategoryRepository;
@@ -48,6 +49,8 @@ class ListingServiceTestTwo {
         listing = new Listing();
         listing.setId(listingId);
         listing.setStatus(ListingStatus.ACTIVE);
+        listing.setDescription("Old description");
+        listing.setImageUrl("old.jpg");
     }
 
     @Test
@@ -103,5 +106,57 @@ class ListingServiceTestTwo {
                 RuntimeException.class,
                 () -> listingService.cancelListing(listingId)
         );
+    }
+
+    @Test
+    void shouldUpdateListingWhenNoBidsExist() {
+
+        UpdateListingRequest request = new UpdateListingRequest();
+        request.setDescription("New description");
+        request.setImageUrl("new.jpg");
+
+        when(listingRepository.findById(listingId))
+                .thenReturn(Optional.of(listing));
+
+        ListingBidStatusResponse response =
+                new ListingBidStatusResponse(listingId, false, 0);
+
+        when(restTemplate.getForObject(
+                anyString(),
+                eq(ListingBidStatusResponse.class)
+        )).thenReturn(response);
+
+        when(listingRepository.save(any(Listing.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        listingService.updateListing(request, listingId);
+
+        assertEquals("New description", listing.getDescription());
+        assertEquals("new.jpg", listing.getImageUrl());
+
+        verify(listingRepository).save(listing);
+    }
+
+    @Test
+    void shouldThrowExceptionWhenListingAlreadyHasBids() {
+
+        UpdateListingRequest request = new UpdateListingRequest();
+        request.setDescription("New description");
+
+        when(listingRepository.findById(listingId))
+                .thenReturn(Optional.of(listing));
+
+        ListingBidStatusResponse response =
+                new ListingBidStatusResponse(listingId, true, 1);
+
+        when(restTemplate.getForObject(
+                anyString(),
+                eq(ListingBidStatusResponse.class)
+        )).thenReturn(response);
+
+        assertThrows(IllegalStateException.class,
+                () -> listingService.updateListing(request, listingId));
+
+        verify(listingRepository, never()).save(any());
     }
 }

@@ -2,6 +2,8 @@ package id.ac.ui.cs.advprog.bidmartcatalog.controller;
 
 import id.ac.ui.cs.advprog.bidmartcatalog.dto.CreateListingRequest;
 import id.ac.ui.cs.advprog.bidmartcatalog.dto.ListingDTO;
+import id.ac.ui.cs.advprog.bidmartcatalog.dto.UpdateListingRequest;
+import jakarta.validation.Valid;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -52,6 +54,13 @@ public class ListingController {
         List<ListingDTO> listings = listingService.getAllListings();
 
         return ResponseEntity.ok(listings);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ListingDTO> updateListing(
+            @PathVariable UUID id,
+            @RequestBody @Valid UpdateListingRequest request) {
+        return ResponseEntity.ok(listingService.updateListing(request, id));
     }
 
     @GetMapping("/{id}")
