@@ -53,7 +53,7 @@ class ListingServiceTest {
         sampleListing = new Listing();
         sampleListing.setId(sampleId);
         sampleListing.setTitle("Vintage Camera");
-        sampleListing.setCurrentPrice(new BigDecimal("100000"));
+        sampleListing.setReservePrice(new BigDecimal("100000"));
         sampleListing.setCategory(sampleCategory);
     }
 

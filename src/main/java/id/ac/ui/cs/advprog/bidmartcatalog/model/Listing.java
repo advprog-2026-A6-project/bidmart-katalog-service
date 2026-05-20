@@ -20,6 +20,7 @@ public class Listing {
     private String title;
     private String description;
     private BigDecimal startingPrice;
+    private BigDecimal reservePrice;
     private BigDecimal currentPrice;
     private String imageUrl;
 

@@ -1,0 +1,11 @@
+package id.ac.ui.cs.advprog.bidmartcatalog.controller;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/api/listings/internal")
+@RequiredArgsConstructor
+public class ListingInternalController {
+}
