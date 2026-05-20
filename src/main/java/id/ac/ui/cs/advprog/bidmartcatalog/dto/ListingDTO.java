@@ -24,7 +24,7 @@ public class ListingDTO {
     private BigDecimal currentPrice;
     private String imageUrl;
     private ListingStatus status;
-    private UUID sellerId;
+    private String sellerId;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
 

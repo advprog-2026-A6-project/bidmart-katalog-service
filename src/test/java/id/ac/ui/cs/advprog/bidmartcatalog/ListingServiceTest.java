@@ -69,7 +69,7 @@ class ListingServiceTest {
         request.setEndTime(LocalDateTime.now().plusDays(1));
         request.setCategoryId(categoryId);
 
-        UUID sellerId = UUID.randomUUID();
+        String sellerId = "seller-123";
 
         when(categoryRepository.findById(categoryId))
                 .thenReturn(Optional.of(sampleCategory));
@@ -101,7 +101,7 @@ class ListingServiceTest {
 
         // Act & Assert
         Exception exception = assertThrows(RuntimeException.class, () ->
-                listingService.createListing(request, UUID.randomUUID())
+                listingService.createListing(request, "seller-404")
         );
 
         assertEquals("Category not found", exception.getMessage());

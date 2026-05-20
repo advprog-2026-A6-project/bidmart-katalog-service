@@ -34,7 +34,7 @@ public class ListingService {
     private String auctionServiceUrl;
 
     @Transactional
-    public Listing createListing(CreateListingRequest request, UUID sellerId) {
+    public Listing createListing(CreateListingRequest request, String sellerId) {
         Category category = categoryRepository.findById(request.getCategoryId())
                 .orElseThrow(() -> new RuntimeException("Category not found"));
 
