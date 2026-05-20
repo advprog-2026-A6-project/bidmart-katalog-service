@@ -10,9 +10,11 @@ spring:
       ddl-auto: update
     open-in-view: false
     show-sql: true
-  service:
-    auction:
-      url: http://localhost:8082/api/auctions/internal/
+service:
+  auction:
+    url: ${AUCTION_INTERNAL_SERVICE_URL:http://localhost:8082/api/auctions/internal/}
+  auth:
+    url: ${AUTH_INTERNAL_SERVICE_URL:http://35.168.202.46:8081/api/internal/users/}
 
 staging:
   links:

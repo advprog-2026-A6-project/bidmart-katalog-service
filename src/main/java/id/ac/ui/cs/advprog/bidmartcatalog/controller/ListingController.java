@@ -62,7 +62,7 @@ public class ListingController {
     }
 
     @GetMapping("/{id}")
-    public Listing getById(@PathVariable UUID id) {
+    public ListingDTO getById(@PathVariable UUID id) {
         return listingService.getListingById(id);
     }
 

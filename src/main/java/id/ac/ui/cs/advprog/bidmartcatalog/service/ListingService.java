@@ -21,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import id.ac.ui.cs.advprog.bidmartcatalog.model.Listing;
 import id.ac.ui.cs.advprog.bidmartcatalog.repository.ListingRepository;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestClientException;
 
 @Service
 @RequiredArgsConstructor
@@ -32,6 +33,9 @@ public class ListingService {
 
     @Value("${service.auction.url}")
     private String auctionServiceUrl;
+
+    @Value("${service.auth.url}")
+    private String authServiceUrl;
 
     @Transactional
     public Listing createListing(CreateListingRequest request, String sellerId) {
@@ -58,13 +62,14 @@ public class ListingService {
     @Transactional(readOnly = true)
     public List<ListingDTO> getAllListings() {
         return listingRepository.findAll().stream()
-                .map(ListingDTO::fromEntity)
+                .map(this::toListingDto)
                 .toList();
     }
 
-    public Listing getListingById(UUID id) {
-        return listingRepository.findById(id)
+    public ListingDTO getListingById(UUID id) {
+        Listing listing = listingRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Listing not found"));
+        return toListingDto(listing);
     }
 
     public ListingDTO updateListing(UpdateListingRequest request, UUID listingId) {
@@ -131,7 +136,7 @@ public class ListingService {
 
 
         return listingRepository.findAll(spec).stream()
-                .map(ListingDTO::fromEntity)
+                .map(this::toListingDto)
                 .toList();
     }
 
@@ -163,6 +168,25 @@ public class ListingService {
                 );
         listing.setCurrentPrice(event.getBidAmount());
         listingRepository.save(listing);
+    }
+
+    private ListingDTO toListingDto(Listing listing) {
+        return ListingDTO.fromEntity(listing, fetchSellerProfile(listing.getSellerId()));
+    }
+
+    private SellerPublicProfileDTO fetchSellerProfile(String sellerId) {
+        if (sellerId == null || sellerId.isBlank()) {
+            return null;
+        }
+
+        try {
+            return restTemplate.getForObject(
+                    authServiceUrl + sellerId + "/public-profile",
+                    SellerPublicProfileDTO.class
+            );
+        } catch (RestClientException exception) {
+            return null;
+        }
     }
 
 }
