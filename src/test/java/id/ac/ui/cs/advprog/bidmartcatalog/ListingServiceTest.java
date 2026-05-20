@@ -53,7 +53,7 @@ class ListingServiceTest {
         sampleListing = new Listing();
         sampleListing.setId(sampleId);
         sampleListing.setTitle("Vintage Camera");
-        sampleListing.setCurrentPrice(new BigDecimal("100000"));
+        sampleListing.setReservePrice(new BigDecimal("100000"));
         sampleListing.setCategory(sampleCategory);
     }
 
@@ -172,4 +172,6 @@ class ListingServiceTest {
         verify(categoryRepository, times(1)).findAllDescendantIds(categoryId);
         verify(listingRepository, times(1)).findAll(any(Specification.class));
     }
+
+
 }
