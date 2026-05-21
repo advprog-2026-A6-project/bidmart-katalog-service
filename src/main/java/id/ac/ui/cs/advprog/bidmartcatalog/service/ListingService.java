@@ -34,6 +34,7 @@ public class ListingService {
     private final ListingRepository listingRepository;
     private final CategoryRepository categoryRepository;
     private final RestTemplate restTemplate;
+    private final ListingAuctionNotifier listingAuctionNotifier;
 
     @Value("${service.auction.url}")
     private String auctionServiceUrl;
@@ -164,6 +165,7 @@ public class ListingService {
         } else {
             listing.setStatus(ListingStatus.CANCELLED);
             listingRepository.save(listing);
+            listingAuctionNotifier.publishStatusChanged(listingId, ListingStatus.CANCELLED);
         }
     }
 
