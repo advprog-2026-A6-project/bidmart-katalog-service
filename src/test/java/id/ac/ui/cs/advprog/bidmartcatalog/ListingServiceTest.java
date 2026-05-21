@@ -2,6 +2,7 @@ package id.ac.ui.cs.advprog.bidmartcatalog;
 
 import id.ac.ui.cs.advprog.bidmartcatalog.dto.CreateListingRequest;
 import id.ac.ui.cs.advprog.bidmartcatalog.dto.ListingDTO;
+import id.ac.ui.cs.advprog.bidmartcatalog.dto.SellerPublicProfileDTO;
 import id.ac.ui.cs.advprog.bidmartcatalog.model.Category;
 import id.ac.ui.cs.advprog.bidmartcatalog.model.Listing;
 import id.ac.ui.cs.advprog.bidmartcatalog.repository.CategoryRepository;
@@ -14,6 +15,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -32,6 +37,9 @@ class ListingServiceTest {
 
     @Mock
     private CategoryRepository categoryRepository;
+
+    @Mock
+    private RestTemplate restTemplate;
 
     @InjectMocks
     private ListingService listingService;
@@ -55,6 +63,10 @@ class ListingServiceTest {
         sampleListing.setTitle("Vintage Camera");
         sampleListing.setReservePrice(new BigDecimal("100000"));
         sampleListing.setCategory(sampleCategory);
+        sampleListing.setSellerId("1");
+
+        ReflectionTestUtils.setField(listingService, "authServiceUrl", "http://localhost:8081/api/internal/users/");
+        ReflectionTestUtils.setField(listingService, "authInternalToken", "test-internal-token");
     }
 
     @Test
@@ -69,7 +81,7 @@ class ListingServiceTest {
         request.setEndTime(LocalDateTime.now().plusDays(1));
         request.setCategoryId(categoryId);
 
-        UUID sellerId = UUID.randomUUID();
+        String sellerId = "seller-123";
 
         when(categoryRepository.findById(categoryId))
                 .thenReturn(Optional.of(sampleCategory));
@@ -101,7 +113,7 @@ class ListingServiceTest {
 
         // Act & Assert
         Exception exception = assertThrows(RuntimeException.class, () ->
-                listingService.createListing(request, UUID.randomUUID())
+                listingService.createListing(request, "seller-404")
         );
 
         assertEquals("Category not found", exception.getMessage());
@@ -111,11 +123,16 @@ class ListingServiceTest {
     void testGetListingById_Success() {
         when(listingRepository.findById(sampleId))
                 .thenReturn(Optional.of(sampleListing));
+        when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(), eq(SellerPublicProfileDTO.class)))
+                .thenReturn(ResponseEntity.ok(
+                        new SellerPublicProfileDTO(1L, "Seller One", "Trusted seller", "https://example.com/seller.jpg")
+                ));
 
-        Listing found = listingService.getListingById(sampleId);
+        ListingDTO found = listingService.getListingById(sampleId);
 
         assertNotNull(found);
         assertEquals("Vintage Camera", found.getTitle());
+        assertEquals("Seller One", found.getSellerName());
     }
 
     @Test
@@ -134,10 +151,15 @@ class ListingServiceTest {
     void testGetAllListings_ShouldReturnList() {
         when(listingRepository.findAll())
                 .thenReturn(List.of(sampleListing));
+        when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(), eq(SellerPublicProfileDTO.class)))
+                .thenReturn(ResponseEntity.ok(
+                        new SellerPublicProfileDTO(1L, "Seller One", "Trusted seller", "https://example.com/seller.jpg")
+                ));
 
         List<ListingDTO> result = listingService.getAllListings();
 
         assertEquals(1, result.size());
+        assertEquals("Seller One", result.get(0).getSellerName());
     }
 
     @Test
@@ -155,6 +177,10 @@ class ListingServiceTest {
 
         when(listingRepository.findAll(any(Specification.class)))
                 .thenReturn(List.of(sampleListing));
+        when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(), eq(SellerPublicProfileDTO.class)))
+                .thenReturn(ResponseEntity.ok(
+                        new SellerPublicProfileDTO(1L, "Seller One", "Trusted seller", "https://example.com/seller.jpg")
+                ));
 
         // Act
         List<ListingDTO> results = listingService.searchListings(
@@ -168,6 +194,7 @@ class ListingServiceTest {
         // Assert
         assertNotNull(results);
         assertEquals(1, results.size());
+        assertEquals("Seller One", results.get(0).getSellerName());
 
         verify(categoryRepository, times(1)).findAllDescendantIds(categoryId);
         verify(listingRepository, times(1)).findAll(any(Specification.class));

@@ -9,6 +9,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -21,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 import id.ac.ui.cs.advprog.bidmartcatalog.model.Listing;
 import id.ac.ui.cs.advprog.bidmartcatalog.repository.ListingRepository;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestClientException;
 
 @Service
 @RequiredArgsConstructor
@@ -33,8 +38,14 @@ public class ListingService {
     @Value("${service.auction.url}")
     private String auctionServiceUrl;
 
+    @Value("${service.auth.url}")
+    private String authServiceUrl;
+
+    @Value("${service.auth.internal-token}")
+    private String authInternalToken;
+
     @Transactional
-    public Listing createListing(CreateListingRequest request, UUID sellerId) {
+    public Listing createListing(CreateListingRequest request, String sellerId) {
         Category category = categoryRepository.findById(request.getCategoryId())
                 .orElseThrow(() -> new RuntimeException("Category not found"));
 
@@ -58,13 +69,14 @@ public class ListingService {
     @Transactional(readOnly = true)
     public List<ListingDTO> getAllListings() {
         return listingRepository.findAll().stream()
-                .map(ListingDTO::fromEntity)
+                .map(this::toListingDto)
                 .toList();
     }
 
-    public Listing getListingById(UUID id) {
-        return listingRepository.findById(id)
+    public ListingDTO getListingById(UUID id) {
+        Listing listing = listingRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Listing not found"));
+        return toListingDto(listing);
     }
 
     public ListingDTO updateListing(UpdateListingRequest request, UUID listingId) {
@@ -131,7 +143,7 @@ public class ListingService {
 
 
         return listingRepository.findAll(spec).stream()
-                .map(ListingDTO::fromEntity)
+                .map(this::toListingDto)
                 .toList();
     }
 
@@ -163,6 +175,31 @@ public class ListingService {
                 );
         listing.setCurrentPrice(event.getBidAmount());
         listingRepository.save(listing);
+    }
+
+    private ListingDTO toListingDto(Listing listing) {
+        return ListingDTO.fromEntity(listing, fetchSellerProfile(listing.getSellerId()));
+    }
+
+    private SellerPublicProfileDTO fetchSellerProfile(String sellerId) {
+        if (sellerId == null || sellerId.isBlank()) {
+            return null;
+        }
+
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("X-Internal-Service-Token", authInternalToken);
+
+            ResponseEntity<SellerPublicProfileDTO> response = restTemplate.exchange(
+                    authServiceUrl + sellerId + "/public-profile",
+                    HttpMethod.GET,
+                    new HttpEntity<>(headers),
+                    SellerPublicProfileDTO.class
+            );
+            return response.getBody();
+        } catch (RestClientException exception) {
+            return null;
+        }
     }
 
 }

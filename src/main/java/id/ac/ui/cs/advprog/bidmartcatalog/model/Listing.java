@@ -16,7 +16,7 @@ public class Listing {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
-    private UUID sellerId;
+    private String sellerId;
     private String title;
     private String description;
     private BigDecimal startingPrice;

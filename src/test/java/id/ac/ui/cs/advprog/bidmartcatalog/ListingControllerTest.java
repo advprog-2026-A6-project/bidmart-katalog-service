@@ -2,6 +2,7 @@ package id.ac.ui.cs.advprog.bidmartcatalog;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import id.ac.ui.cs.advprog.bidmartcatalog.controller.ListingController;
+import id.ac.ui.cs.advprog.bidmartcatalog.dto.ListingDTO;
 import id.ac.ui.cs.advprog.bidmartcatalog.model.Listing;
 import id.ac.ui.cs.advprog.bidmartcatalog.service.ListingService;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,6 +36,7 @@ class ListingControllerTest {
     private ObjectMapper objectMapper;
 
     private Listing sampleListing;
+    private ListingDTO sampleListingDto;
     private UUID sampleId;
 
     @BeforeEach
@@ -43,6 +45,13 @@ class ListingControllerTest {
         sampleListing = new Listing();
         sampleListing.setId(sampleId);
         sampleListing.setTitle("MacBook Pro");
+
+        sampleListingDto = ListingDTO.builder()
+                .id(sampleId)
+                .title("MacBook Pro")
+                .sellerId("1")
+                .sellerName("Seller One")
+                .build();
     }
 
 //    @Test
@@ -59,11 +68,12 @@ class ListingControllerTest {
 
     @Test
     void testGetById_ShouldReturnListing() throws Exception {
-        when(listingService.getListingById(sampleId)).thenReturn(sampleListing);
+        when(listingService.getListingById(sampleId)).thenReturn(sampleListingDto);
 
         mockMvc.perform(get("/listings/{id}", sampleId))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.title").value("MacBook Pro"));
+                .andExpect(jsonPath("$.title").value("MacBook Pro"))
+                .andExpect(jsonPath("$.sellerName").value("Seller One"));
     }
 
     @Test
