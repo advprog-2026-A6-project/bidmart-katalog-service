@@ -16,4 +16,14 @@ class RabbitConfigTest {
         assertEquals(RabbitConfig.QUEUE, queue.getName());
         assertTrue(queue.isDurable());
     }
+
+    @Test
+    void auctionListingStatusQueue_isDurableWithExpectedName() {
+        RabbitConfig config = new RabbitConfig();
+
+        Queue queue = config.auctionListingStatusQueue();
+
+        assertEquals(RabbitConfig.AUCTION_LISTING_STATUS_QUEUE, queue.getName());
+        assertTrue(queue.isDurable());
+    }
 }

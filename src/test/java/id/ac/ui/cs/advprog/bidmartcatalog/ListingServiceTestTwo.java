@@ -6,6 +6,7 @@ import id.ac.ui.cs.advprog.bidmartcatalog.model.Listing;
 import id.ac.ui.cs.advprog.bidmartcatalog.model.ListingStatus;
 import id.ac.ui.cs.advprog.bidmartcatalog.repository.CategoryRepository;
 import id.ac.ui.cs.advprog.bidmartcatalog.repository.ListingRepository;
+import id.ac.ui.cs.advprog.bidmartcatalog.service.ListingAuctionNotifier;
 import id.ac.ui.cs.advprog.bidmartcatalog.service.ListingService;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -35,6 +36,9 @@ class ListingServiceTestTwo {
 
     @Mock
     private RestTemplate restTemplate;
+
+    @Mock
+    private ListingAuctionNotifier listingAuctionNotifier;
 
     @InjectMocks
     private ListingService listingService;
@@ -72,6 +76,7 @@ class ListingServiceTestTwo {
         assertEquals(ListingStatus.CANCELLED, listing.getStatus());
 
         verify(listingRepository).save(listing);
+        verify(listingAuctionNotifier).publishStatusChanged(listingId, ListingStatus.CANCELLED);
     }
 
     @Test
@@ -94,6 +99,7 @@ class ListingServiceTestTwo {
         );
 
         verify(listingRepository, never()).save(any());
+        verify(listingAuctionNotifier, never()).publishStatusChanged(any(), any());
     }
 
     @Test

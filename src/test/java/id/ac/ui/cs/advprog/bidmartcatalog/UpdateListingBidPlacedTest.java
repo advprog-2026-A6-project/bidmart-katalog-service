@@ -3,6 +3,7 @@ package id.ac.ui.cs.advprog.bidmartcatalog;
 import id.ac.ui.cs.advprog.bidmartcatalog.dto.BidPlacedEvent;
 import id.ac.ui.cs.advprog.bidmartcatalog.model.Listing;
 import id.ac.ui.cs.advprog.bidmartcatalog.repository.ListingRepository;
+import id.ac.ui.cs.advprog.bidmartcatalog.service.ListingAuctionNotifier;
 import id.ac.ui.cs.advprog.bidmartcatalog.service.ListingService;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -32,6 +33,9 @@ class UpdateListingBidPlacedTest {
 
     @Mock
     private ListingRepository listingRepository;
+
+    @Mock
+    private ListingAuctionNotifier listingAuctionNotifier;
 
     @InjectMocks
     private ListingService listener;
