@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+@SuppressWarnings("JpaDataSourceORMInspection")
 @Entity
 @Table(name = "catalog_listings")
 @Setter
@@ -16,7 +17,7 @@ public class Listing {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
-    private UUID sellerId;
+    private String sellerId;
     private String title;
     private String description;
     private BigDecimal startingPrice;

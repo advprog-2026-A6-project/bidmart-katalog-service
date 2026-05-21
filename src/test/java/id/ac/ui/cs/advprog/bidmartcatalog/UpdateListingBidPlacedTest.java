@@ -1,3 +1,5 @@
+package id.ac.ui.cs.advprog.bidmartcatalog;
+
 import id.ac.ui.cs.advprog.bidmartcatalog.dto.BidPlacedEvent;
 import id.ac.ui.cs.advprog.bidmartcatalog.model.Listing;
 import id.ac.ui.cs.advprog.bidmartcatalog.repository.ListingRepository;
@@ -26,7 +28,7 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("UpdateListingPriceListener")
-class UpdateListingPriceListenerTest {
+class UpdateListingBidPlacedTest {
 
     @Mock
     private ListingRepository listingRepository;
