@@ -24,7 +24,10 @@ public class ListingDTO {
     private BigDecimal currentPrice;
     private String imageUrl;
     private ListingStatus status;
-    private UUID sellerId;
+    private String sellerId;
+    private String sellerName;
+    private String sellerBio;
+    private String sellerProfilePictureUrl;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
 
@@ -49,5 +52,15 @@ public class ListingDTO {
                 .categoryId(listing.getCategory() != null ? listing.getCategory().getId() : null)
                 .categoryName(listing.getCategory() != null ? listing.getCategory().getName() : "Uncategorized")
                 .build();
+    }
+
+    public static ListingDTO fromEntity(Listing listing, SellerPublicProfileDTO sellerProfile) {
+        ListingDTO dto = fromEntity(listing);
+        if (sellerProfile != null) {
+            dto.setSellerName(sellerProfile.getName());
+            dto.setSellerBio(sellerProfile.getBio());
+            dto.setSellerProfilePictureUrl(sellerProfile.getProfilePictureUrl());
+        }
+        return dto;
     }
 }

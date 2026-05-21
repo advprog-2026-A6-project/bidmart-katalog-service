@@ -138,6 +138,19 @@ class ListingServiceTestTwo {
     }
 
     @Test
+    void updateListing_shouldThrow_whenListingNotFound() {
+        UpdateListingRequest request = new UpdateListingRequest();
+        request.setDescription("New description");
+
+        when(listingRepository.findById(listingId)).thenReturn(Optional.empty());
+
+        assertThrows(RuntimeException.class,
+                () -> listingService.updateListing(request, listingId));
+
+        verify(restTemplate, never()).getForObject(anyString(), eq(ListingBidStatusResponse.class));
+    }
+
+    @Test
     void shouldThrowExceptionWhenListingAlreadyHasBids() {
 
         UpdateListingRequest request = new UpdateListingRequest();
