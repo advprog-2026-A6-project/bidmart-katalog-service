@@ -15,6 +15,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.RestTemplate;
 
@@ -64,6 +66,7 @@ class ListingServiceTest {
         sampleListing.setSellerId("1");
 
         ReflectionTestUtils.setField(listingService, "authServiceUrl", "http://localhost:8081/api/internal/users/");
+        ReflectionTestUtils.setField(listingService, "authInternalToken", "test-internal-token");
     }
 
     @Test
@@ -120,8 +123,10 @@ class ListingServiceTest {
     void testGetListingById_Success() {
         when(listingRepository.findById(sampleId))
                 .thenReturn(Optional.of(sampleListing));
-        when(restTemplate.getForObject(anyString(), eq(SellerPublicProfileDTO.class)))
-                .thenReturn(new SellerPublicProfileDTO(1L, "Seller One", "Trusted seller", "https://example.com/seller.jpg"));
+        when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(), eq(SellerPublicProfileDTO.class)))
+                .thenReturn(ResponseEntity.ok(
+                        new SellerPublicProfileDTO(1L, "Seller One", "Trusted seller", "https://example.com/seller.jpg")
+                ));
 
         ListingDTO found = listingService.getListingById(sampleId);
 
@@ -146,8 +151,10 @@ class ListingServiceTest {
     void testGetAllListings_ShouldReturnList() {
         when(listingRepository.findAll())
                 .thenReturn(List.of(sampleListing));
-        when(restTemplate.getForObject(anyString(), eq(SellerPublicProfileDTO.class)))
-                .thenReturn(new SellerPublicProfileDTO(1L, "Seller One", "Trusted seller", "https://example.com/seller.jpg"));
+        when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(), eq(SellerPublicProfileDTO.class)))
+                .thenReturn(ResponseEntity.ok(
+                        new SellerPublicProfileDTO(1L, "Seller One", "Trusted seller", "https://example.com/seller.jpg")
+                ));
 
         List<ListingDTO> result = listingService.getAllListings();
 
@@ -170,8 +177,10 @@ class ListingServiceTest {
 
         when(listingRepository.findAll(any(Specification.class)))
                 .thenReturn(List.of(sampleListing));
-        when(restTemplate.getForObject(anyString(), eq(SellerPublicProfileDTO.class)))
-                .thenReturn(new SellerPublicProfileDTO(1L, "Seller One", "Trusted seller", "https://example.com/seller.jpg"));
+        when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(), eq(SellerPublicProfileDTO.class)))
+                .thenReturn(ResponseEntity.ok(
+                        new SellerPublicProfileDTO(1L, "Seller One", "Trusted seller", "https://example.com/seller.jpg")
+                ));
 
         // Act
         List<ListingDTO> results = listingService.searchListings(

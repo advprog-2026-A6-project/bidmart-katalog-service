@@ -9,6 +9,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -36,6 +40,9 @@ public class ListingService {
 
     @Value("${service.auth.url}")
     private String authServiceUrl;
+
+    @Value("${service.auth.internal-token}")
+    private String authInternalToken;
 
     @Transactional
     public Listing createListing(CreateListingRequest request, String sellerId) {
@@ -180,10 +187,16 @@ public class ListingService {
         }
 
         try {
-            return restTemplate.getForObject(
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("X-Internal-Service-Token", authInternalToken);
+
+            ResponseEntity<SellerPublicProfileDTO> response = restTemplate.exchange(
                     authServiceUrl + sellerId + "/public-profile",
+                    HttpMethod.GET,
+                    new HttpEntity<>(headers),
                     SellerPublicProfileDTO.class
             );
+            return response.getBody();
         } catch (RestClientException exception) {
             return null;
         }
