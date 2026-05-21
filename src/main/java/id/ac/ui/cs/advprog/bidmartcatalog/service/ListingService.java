@@ -73,12 +73,14 @@ public class ListingService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public ListingDTO getListingById(UUID id) {
         Listing listing = listingRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Listing not found"));
         return toListingDto(listing);
     }
 
+    @Transactional(readOnly = true)
     public ListingDTO updateListing(UpdateListingRequest request, UUID listingId) {
         Listing listing = listingRepository.findById(listingId)
                 .orElseThrow(() -> new RuntimeException("Listing not found"));
