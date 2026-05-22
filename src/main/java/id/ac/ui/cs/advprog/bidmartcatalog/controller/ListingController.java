@@ -49,6 +49,13 @@ public class ListingController {
         return ResponseEntity.ok(results);
     }
 
+    @GetMapping("/mine")
+    public ResponseEntity<List<ListingDTO>> getMyListings(
+            @RequestHeader("X-User-Id") String sellerId
+    ) {
+        return ResponseEntity.ok(listingService.getListingsBySeller(sellerId));
+    }
+
     @GetMapping
     public ResponseEntity<List<ListingDTO>> getAll() {
         List<ListingDTO> listings = listingService.getAllListings();
@@ -59,8 +66,10 @@ public class ListingController {
     @PutMapping("/{id}")
     public ResponseEntity<ListingDTO> updateListing(
             @PathVariable UUID id,
-            @RequestBody @Valid UpdateListingRequest request) {
-        return ResponseEntity.ok(listingService.updateListing(request, id));
+            @RequestBody @Valid UpdateListingRequest request,
+            @RequestHeader("X-User-Id") String sellerId
+    ) {
+        return ResponseEntity.ok(listingService.updateListing(request, id, sellerId));
     }
 
     @GetMapping("/{id}")
@@ -69,13 +78,19 @@ public class ListingController {
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable UUID id) {
-        listingService.deleteListing(id);
+    public void delete(
+            @PathVariable UUID id,
+            @RequestHeader("X-User-Id") String sellerId
+    ) {
+        listingService.deleteListing(id, sellerId);
     }
 
     @PostMapping("/{listingId}/cancel")
-    public void cancelListing(@PathVariable UUID listingId) {
-        listingService.cancelListing(listingId);
+    public void cancelListing(
+            @PathVariable UUID listingId,
+            @RequestHeader("X-User-Id") String sellerId
+    ) {
+        listingService.cancelListing(listingId, sellerId);
     }
 
 

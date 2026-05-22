@@ -81,12 +81,18 @@ class ListingServiceSellerProfileTest {
     void getAllListings_authServiceFailure_returnsListingWithoutSellerName() {
         listing.setSellerId("seller-9");
         when(listingRepository.findAll()).thenReturn(List.of(listing));
+        when(restTemplate.exchange(
+                anyString(),
+                eq(HttpMethod.GET),
+                any(),
+                eq(SellerPublicProfileDTO.class)
+        )).thenThrow(new org.springframework.web.client.RestClientException("auth down"));
 
         List<ListingDTO> results = listingService.getAllListings();
 
         assertEquals(1, results.size());
         assertNull(results.get(0).getSellerName());
-        verify(restTemplate, never()).exchange(
+        verify(restTemplate).exchange(
                 anyString(), eq(HttpMethod.GET), any(), eq(SellerPublicProfileDTO.class));
     }
 }

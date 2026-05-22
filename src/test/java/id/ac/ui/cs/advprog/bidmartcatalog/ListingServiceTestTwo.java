@@ -45,6 +45,7 @@ class ListingServiceTestTwo {
 
     private Listing listing;
     private UUID listingId;
+    private static final String SELLER_ID = "seller-42";
 
     @BeforeEach
     void setUp() {
@@ -52,6 +53,7 @@ class ListingServiceTestTwo {
 
         listing = new Listing();
         listing.setId(listingId);
+        listing.setSellerId(SELLER_ID);
         listing.setStatus(ListingStatus.ACTIVE);
         listing.setDescription("Old description");
         listing.setImageUrl("old.jpg");
@@ -71,7 +73,7 @@ class ListingServiceTestTwo {
                 eq(ListingBidStatusResponse.class)
         )).thenReturn(response);
 
-        listingService.cancelListing(listingId);
+        listingService.cancelListing(listingId, SELLER_ID);
 
         assertEquals(ListingStatus.CANCELLED, listing.getStatus());
 
@@ -95,7 +97,7 @@ class ListingServiceTestTwo {
 
         assertThrows(
                 IllegalStateException.class,
-                () -> listingService.cancelListing(listingId)
+                () -> listingService.cancelListing(listingId, SELLER_ID)
         );
 
         verify(listingRepository, never()).save(any());
@@ -110,7 +112,7 @@ class ListingServiceTestTwo {
 
         assertThrows(
                 RuntimeException.class,
-                () -> listingService.cancelListing(listingId)
+                () -> listingService.cancelListing(listingId, SELLER_ID)
         );
     }
 
@@ -135,7 +137,7 @@ class ListingServiceTestTwo {
         when(listingRepository.save(any(Listing.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
-        listingService.updateListing(request, listingId);
+        listingService.updateListing(request, listingId, SELLER_ID);
 
         assertEquals("New description", listing.getDescription());
         assertEquals("new.jpg", listing.getImageUrl());
@@ -151,7 +153,7 @@ class ListingServiceTestTwo {
         when(listingRepository.findById(listingId)).thenReturn(Optional.empty());
 
         assertThrows(RuntimeException.class,
-                () -> listingService.updateListing(request, listingId));
+                () -> listingService.updateListing(request, listingId, SELLER_ID));
 
         verify(restTemplate, never()).getForObject(anyString(), eq(ListingBidStatusResponse.class));
     }
@@ -174,7 +176,7 @@ class ListingServiceTestTwo {
         )).thenReturn(response);
 
         assertThrows(IllegalStateException.class,
-                () -> listingService.updateListing(request, listingId));
+                () -> listingService.updateListing(request, listingId, SELLER_ID));
 
         verify(listingRepository, never()).save(any());
     }

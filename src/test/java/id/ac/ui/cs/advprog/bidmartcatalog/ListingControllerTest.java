@@ -85,10 +85,11 @@ class ListingControllerTest {
         request.setDescription("Updated");
         request.setImageUrl("new.jpg");
 
-        when(listingService.updateListing(any(UpdateListingRequest.class), eq(sampleId)))
+        when(listingService.updateListing(any(UpdateListingRequest.class), eq(sampleId), eq("seller-42")))
                 .thenReturn(sampleListingDto);
 
         mockMvc.perform(put("/listings/{id}", sampleId)
+                        .header("X-User-Id", "seller-42")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -107,7 +108,8 @@ class ListingControllerTest {
 
     @Test
     void testDelete_ShouldReturn200() throws Exception {
-        mockMvc.perform(delete("/listings/{id}", sampleId))
+        mockMvc.perform(delete("/listings/{id}", sampleId)
+                        .header("X-User-Id", "seller-42"))
                 .andExpect(status().isOk());
     }
 }
