@@ -2,9 +2,9 @@ spring:
   application:
     name: catalog
   datasource:
-    url: ${SUPABASE_DB_URL:}
-    username: ${SUPABASE_DB_USERNAME:sa}
-    password: ${SUPABASE_DB_PASSWORD:}
+    url: ${SUPABASE_DB_URL}
+    username: ${SUPABASE_DB_USERNAME}
+    password: ${SUPABASE_DB_PASSWORD}
   jpa:
     hibernate:
       ddl-auto: update
@@ -12,10 +12,7 @@ spring:
     show-sql: true
 service:
   auction:
-    url: ${AUCTION_INTERNAL_SERVICE_URL:http://localhost:8082/api/auctions/internal/}
-  auth:
-    url: ${AUTH_INTERNAL_SERVICE_URL:http://localhost:8081/api/internal/users/}
-    internal-token: ${AUTH_INTERNAL_SERVICE_TOKEN:bidmart-internal-dev-token}
+    url: ${AUCTION_SERVICE_INTERNAL_URL:http://localhost:8082/api/auctions/internal/}
 
 staging:
   links:

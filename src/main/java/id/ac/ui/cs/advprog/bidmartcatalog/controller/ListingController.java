@@ -27,8 +27,10 @@ public class ListingController {
     private final ListingService listingService;
 
     @PostMapping
-    public ResponseEntity<Listing> create(@RequestBody CreateListingRequest request,
-                                          @RequestHeader("X-User-Id") String sellerId) {
+    public ResponseEntity<Listing> create(
+            @RequestBody CreateListingRequest request,
+            @RequestHeader("X-User-Id") String sellerId
+    ) {
         Listing listing = listingService.createListing(request, sellerId);
         return new ResponseEntity<>(listing, HttpStatus.CREATED);
     }
@@ -62,8 +64,8 @@ public class ListingController {
     }
 
     @GetMapping("/{id}")
-    public ListingDTO getById(@PathVariable UUID id) {
-        return listingService.getListingById(id);
+    public ResponseEntity<ListingDTO> getById(@PathVariable UUID id) {
+        return ResponseEntity.ok(listingService.getListingById(id));
     }
 
     @DeleteMapping("/{id}")
