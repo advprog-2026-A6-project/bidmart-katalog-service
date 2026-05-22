@@ -1,0 +1,19 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:catalog-serenity;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=PostgreSQL
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    open-in-view: false
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration
+
+service:
+  auction:
+    url: http://localhost:9999/api/auctions/internal/
+  auth:
+    url: http://localhost:9999/api/internal/users/
+    internal-token: serenity-test-token
