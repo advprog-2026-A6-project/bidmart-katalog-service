@@ -41,7 +41,15 @@ jobs:
             ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/tmp/app.jar
 
       - name: Deploy and restart service
+        env:
+          AUCTION_URL: ${{ secrets.AUCTION_SERVICE_INTERNAL_URL }}
+          AUTH_URL: ${{ secrets.AUTH_INTERNAL_SERVICE_URL }}
+          AUTH_TOKEN: ${{ secrets.AUTH_INTERNAL_SERVICE_TOKEN }}
         run: |
+          AUCTION_URL="${AUCTION_URL:-http://127.0.0.1:8082/api/auctions/internal/}"
+          AUTH_URL="${AUTH_URL:-http://127.0.0.1:8081/api/internal/users/}"
+          AUTH_TOKEN="${AUTH_TOKEN:-bidmart-internal-dev-token}"
+
           ssh -i ~/.ssh/ec2_key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "
             sudo mkdir -p /opt/bidmart-catalog &&
             sudo mv /tmp/app.jar /opt/bidmart-catalog/app.jar &&
@@ -60,8 +68,9 @@ jobs:
           SPRING_RABBITMQ_PASSWORD=${{ secrets.RABBITMQ_PASSWORD }}
           SPRING_RABBITMQ_VHOST=${{ secrets.RABBITMQ_VHOST }}
           SERVER_PORT=8083
-          AUCTION_SERVICE_INTERNAL_URL=${{ secrets.AUCTION_SERVICE_INTERNAL_URL }}
-          AUTH_INTERNAL_SERVICE_URL=${{ secrets.AUTH_INTERNAL_SERVICE_URL }}
+          AUCTION_SERVICE_INTERNAL_URL=${AUCTION_URL}
+          AUTH_INTERNAL_SERVICE_URL=${AUTH_URL}
+          AUTH_INTERNAL_SERVICE_TOKEN=${AUTH_TOKEN}
           ENVEOF
 
           ssh -i ~/.ssh/ec2_key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "

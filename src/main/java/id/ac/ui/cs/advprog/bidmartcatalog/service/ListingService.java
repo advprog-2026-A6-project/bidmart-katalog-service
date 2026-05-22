@@ -36,13 +36,13 @@ public class ListingService {
     private final RestTemplate restTemplate;
     private final ListingAuctionNotifier listingAuctionNotifier;
 
-    @Value("${service.auction.url}")
+    @Value("${service.auction.url:http://localhost:8082/api/auctions/internal/}")
     private String auctionServiceUrl;
 
-    @Value("${service.auth.url}")
+    @Value("${service.auth.url:http://localhost:8081/api/internal/users/}")
     private String authServiceUrl;
 
-    @Value("${service.auth.internal-token}")
+    @Value("${service.auth.internal-token:bidmart-internal-dev-token}")
     private String authInternalToken;
 
     @Transactional

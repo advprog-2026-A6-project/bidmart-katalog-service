@@ -1,0 +1,6 @@
+service:
+  auction:
+    url: ${AUCTION_SERVICE_INTERNAL_URL:${AUCTION_INTERNAL_SERVICE_URL:http://localhost:8082/api/auctions/internal/}}
+  auth:
+    url: ${AUTH_INTERNAL_SERVICE_URL:http://localhost:8081/api/internal/users/}
+    internal-token: ${AUTH_INTERNAL_SERVICE_TOKEN:bidmart-internal-dev-token}
