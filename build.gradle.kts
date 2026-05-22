@@ -1,3 +1,13 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        gradlePluginPortal()
+    }
+    dependencies {
+        classpath("net.serenity-bdd:serenity-gradle-plugin:5.3.7")
+    }
+}
+
 plugins {
     java
     jacoco
@@ -5,6 +15,10 @@ plugins {
     id("io.spring.dependency-management") version "1.1.7"
     id("org.sonarqube") version "5.0.0.4638"
 }
+
+apply(plugin = "net.serenity-bdd.serenity-gradle-plugin")
+
+val serenityVersion = "5.3.7"
 
 group = "id.ac.ui.cs.advprog"
 version = "0.0.1-SNAPSHOT"
@@ -44,6 +58,9 @@ dependencies {
     annotationProcessor("org.projectlombok:lombok")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
+    testImplementation("net.serenity-bdd:serenity-core:$serenityVersion")
+    testImplementation("net.serenity-bdd:serenity-junit5:$serenityVersion")
+    testImplementation("net.serenity-bdd:serenity-rest-assured:$serenityVersion")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     implementation("io.jsonwebtoken:jjwt-api:0.11.5")
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
@@ -63,11 +80,43 @@ dependencies {
 
 tasks.withType<Test> {
     useJUnitPlatform()
-    finalizedBy(tasks.jacocoTestReport)
+}
+
+tasks.test {
+    useJUnitPlatform {
+        excludeTags("functional")
+    }
+}
+
+tasks.register<Test>("functionalTest") {
+    description = "Runs Serenity functional tests"
+    group = "verification"
+    testClassesDirs = sourceSets["test"].output.classesDirs
+    classpath = sourceSets["test"].runtimeClasspath
+    useJUnitPlatform {
+        includeTags("functional")
+    }
+    systemProperty("serenity.project.name", "BidMart Catalog Service Functional Tests")
+    systemProperty(
+        "serenity.outputDirectory",
+        layout.buildDirectory.dir("site/serenity").get().asFile.absolutePath
+    )
+    shouldRunAfter(tasks.test)
+}
+
+tasks.named<net.serenitybdd.plugins.gradle.AggregateTask>("aggregate") {
+    dependsOn("functionalTest")
+    mustRunAfter("functionalTest")
+    getTestRoot().set(layout.buildDirectory.dir("site/serenity").get().asFile.absolutePath)
+    setReportDirectory(layout.buildDirectory.dir("site/serenity").get().asFile.toPath())
+}
+
+tasks.named("check") {
+    dependsOn("functionalTest")
 }
 
 tasks.jacocoTestReport {
-    dependsOn(tasks.test)
+    dependsOn(tasks.test, tasks.named("functionalTest"))
     reports {
         xml.required.set(true)
         csv.required.set(false)
