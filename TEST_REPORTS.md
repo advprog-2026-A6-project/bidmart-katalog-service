@@ -20,7 +20,20 @@ The `Publish Test Reports` workflow generates and publishes a static site that c
 - `JUnit Test Report`
 - `Serenity Functional Test Report`
 
-After the workflow succeeds, open the deployed GitHub Pages environment from the workflow run. The landing page links to all three reports.
+### One-time GitHub Pages setup (required)
+
+If deploy fails with `Failed to create deployment (status: 404)`, Pages is not enabled yet for the repository.
+
+1. Open **Settings → Pages** in the GitHub repo  
+   (`https://github.com/advprog-2026-A6-project/bidmart-katalog-service/settings/pages`)
+2. Under **Build and deployment → Source**, choose **GitHub Actions** (not “Deploy from a branch”).
+3. Save, then re-run the **Publish Test Reports** workflow.
+
+After the workflow succeeds, open the **github-pages** environment link from the workflow run summary.
+
+### Fallback without Pages
+
+Every workflow run also uploads a `catalog-test-reports` artifact (JUnit + JaCoCo + Serenity folders) on the Actions run page, even when Pages deploy is not configured yet.
 
 ## Local generation
 
