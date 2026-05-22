@@ -4,19 +4,18 @@ import id.ac.ui.cs.advprog.bidmartcatalog.dto.CreateListingRequest;
 import id.ac.ui.cs.advprog.bidmartcatalog.dto.ListingDTO;
 import id.ac.ui.cs.advprog.bidmartcatalog.dto.UpdateListingRequest;
 import jakarta.validation.Valid;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import lombok.RequiredArgsConstructor;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
 import id.ac.ui.cs.advprog.bidmartcatalog.model.Listing;
 import id.ac.ui.cs.advprog.bidmartcatalog.service.ListingService;
+import id.ac.ui.cs.advprog.bidmartcatalog.util.ListingDateTimeParser;
 
 
 @RestController
@@ -41,10 +40,10 @@ public class ListingController {
             @RequestParam(required = false) BigDecimal minPrice,
             @RequestParam(required = false) BigDecimal maxPrice,
             @RequestParam(required = false) String keyword,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endBefore
+            @RequestParam(required = false) String endBefore
     ) {
         List<ListingDTO> results = listingService.searchListings(
-                categoryId, minPrice, maxPrice, keyword, endBefore
+                categoryId, minPrice, maxPrice, keyword, ListingDateTimeParser.parseEndBefore(endBefore)
         );
         return ResponseEntity.ok(results);
     }

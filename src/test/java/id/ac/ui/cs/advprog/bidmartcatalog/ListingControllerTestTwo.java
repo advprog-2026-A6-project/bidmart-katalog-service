@@ -81,4 +81,28 @@ class ListingControllerTestTwo {
                         .param("keyword", "phone")
         ).andExpect(status().isOk());
     }
+
+    @Test
+    void search_shouldAcceptHtmlDatetimeLocalEndBefore() throws Exception {
+        when(listingService.searchListings(
+                any(),
+                any(),
+                any(),
+                any(),
+                any()
+        )).thenReturn(List.of());
+
+        mockMvc.perform(
+                get("/listings/search")
+                        .param("endBefore", "2026-05-20T15:30")
+        ).andExpect(status().isOk());
+
+        verify(listingService).searchListings(
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                eq(java.time.LocalDateTime.of(2026, 5, 20, 15, 30, 0))
+        );
+    }
 }

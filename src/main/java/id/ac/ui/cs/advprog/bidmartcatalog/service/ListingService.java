@@ -102,7 +102,7 @@ public class ListingService {
         return toListingDto(listing);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public ListingDTO updateListing(UpdateListingRequest request, UUID listingId, String sellerId) {
         Listing listing = requireOwnedListing(listingId, sellerId);
 
