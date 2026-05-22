@@ -15,7 +15,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.util.ReflectionTestUtils;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import id.ac.ui.cs.advprog.bidmartcatalog.dto.SellerPublicProfileDTO;
@@ -82,13 +81,12 @@ class ListingServiceSellerProfileTest {
     void getAllListings_authServiceFailure_returnsListingWithoutSellerName() {
         listing.setSellerId("seller-9");
         when(listingRepository.findAll()).thenReturn(List.of(listing));
-        when(restTemplate.exchange(
-                anyString(), eq(HttpMethod.GET), any(), eq(SellerPublicProfileDTO.class)))
-                .thenThrow(new RestClientException("auth down"));
 
         List<ListingDTO> results = listingService.getAllListings();
 
         assertEquals(1, results.size());
         assertNull(results.get(0).getSellerName());
+        verify(restTemplate, never()).exchange(
+                anyString(), eq(HttpMethod.GET), any(), eq(SellerPublicProfileDTO.class));
     }
 }

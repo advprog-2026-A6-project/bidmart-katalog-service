@@ -155,15 +155,13 @@ class ListingServiceTest {
     void testGetAllListings_ShouldReturnList() {
         when(listingRepository.findAll())
                 .thenReturn(List.of(sampleListing));
-        when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(), eq(SellerPublicProfileDTO.class)))
-                .thenReturn(ResponseEntity.ok(
-                        new SellerPublicProfileDTO(1L, "Seller One", "Trusted seller", "https://example.com/seller.jpg")
-                ));
 
         List<ListingDTO> result = listingService.getAllListings();
 
         assertEquals(1, result.size());
-        assertEquals("Seller One", result.get(0).getSellerName());
+        assertNull(result.get(0).getSellerName());
+        verify(restTemplate, never()).exchange(
+                anyString(), eq(HttpMethod.GET), any(), eq(SellerPublicProfileDTO.class));
     }
 
     @Test
@@ -181,10 +179,6 @@ class ListingServiceTest {
 
         when(listingRepository.findAll(any(Specification.class)))
                 .thenReturn(List.of(sampleListing));
-        when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(), eq(SellerPublicProfileDTO.class)))
-                .thenReturn(ResponseEntity.ok(
-                        new SellerPublicProfileDTO(1L, "Seller One", "Trusted seller", "https://example.com/seller.jpg")
-                ));
 
         // Act
         List<ListingDTO> results = listingService.searchListings(
@@ -198,10 +192,12 @@ class ListingServiceTest {
         // Assert
         assertNotNull(results);
         assertEquals(1, results.size());
-        assertEquals("Seller One", results.get(0).getSellerName());
+        assertNull(results.get(0).getSellerName());
 
         verify(categoryRepository, times(1)).findAllDescendantIds(categoryId);
         verify(listingRepository, times(1)).findAll(any(Specification.class));
+        verify(restTemplate, never()).exchange(
+                anyString(), eq(HttpMethod.GET), any(), eq(SellerPublicProfileDTO.class));
     }
 
 

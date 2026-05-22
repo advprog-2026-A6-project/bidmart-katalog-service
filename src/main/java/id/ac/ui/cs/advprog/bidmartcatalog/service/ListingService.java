@@ -70,7 +70,7 @@ public class ListingService {
     @Transactional(readOnly = true)
     public List<ListingDTO> getAllListings() {
         return listingRepository.findAll().stream()
-                .map(this::toListingDto)
+                .map(ListingDTO::fromEntity)
                 .toList();
     }
 
@@ -146,7 +146,7 @@ public class ListingService {
 
 
         return listingRepository.findAll(spec).stream()
-                .map(this::toListingDto)
+                .map(ListingDTO::fromEntity)
                 .toList();
     }
 
