@@ -42,15 +42,17 @@ class ListingControllerTestTwo {
     void cancelListing_shouldReturnOk() throws Exception {
 
         UUID listingId = UUID.randomUUID();
+        String sellerId = "seller-1";
 
         doNothing().when(listingService)
-                .cancelListing(listingId);
+                .cancelListing(listingId, sellerId);
 
         mockMvc.perform(
                 post("/listings/" + listingId + "/cancel")
+                        .header("X-User-Id", sellerId)
         ).andExpect(status().isOk());
 
-        verify(listingService).cancelListing(listingId);
+        verify(listingService).cancelListing(listingId, sellerId);
     }
 
     @Test
