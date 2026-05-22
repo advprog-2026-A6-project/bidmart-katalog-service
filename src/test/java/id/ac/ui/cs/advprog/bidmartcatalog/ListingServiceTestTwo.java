@@ -18,7 +18,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -45,6 +48,7 @@ class ListingServiceTestTwo {
 
     private Listing listing;
     private UUID listingId;
+    private static final String SELLER_ID = "seller-42";
 
     @BeforeEach
     void setUp() {
@@ -52,6 +56,7 @@ class ListingServiceTestTwo {
 
         listing = new Listing();
         listing.setId(listingId);
+        listing.setSellerId(SELLER_ID);
         listing.setStatus(ListingStatus.ACTIVE);
         listing.setDescription("Old description");
         listing.setImageUrl("old.jpg");
@@ -71,7 +76,7 @@ class ListingServiceTestTwo {
                 eq(ListingBidStatusResponse.class)
         )).thenReturn(response);
 
-        listingService.cancelListing(listingId);
+        listingService.cancelListing(listingId, SELLER_ID);
 
         assertEquals(ListingStatus.CANCELLED, listing.getStatus());
 
@@ -95,7 +100,7 @@ class ListingServiceTestTwo {
 
         assertThrows(
                 IllegalStateException.class,
-                () -> listingService.cancelListing(listingId)
+                () -> listingService.cancelListing(listingId, SELLER_ID)
         );
 
         verify(listingRepository, never()).save(any());
@@ -110,7 +115,7 @@ class ListingServiceTestTwo {
 
         assertThrows(
                 RuntimeException.class,
-                () -> listingService.cancelListing(listingId)
+                () -> listingService.cancelListing(listingId, SELLER_ID)
         );
     }
 
@@ -135,7 +140,7 @@ class ListingServiceTestTwo {
         when(listingRepository.save(any(Listing.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
-        listingService.updateListing(request, listingId);
+        listingService.updateListing(request, listingId, SELLER_ID);
 
         assertEquals("New description", listing.getDescription());
         assertEquals("new.jpg", listing.getImageUrl());
@@ -151,7 +156,7 @@ class ListingServiceTestTwo {
         when(listingRepository.findById(listingId)).thenReturn(Optional.empty());
 
         assertThrows(RuntimeException.class,
-                () -> listingService.updateListing(request, listingId));
+                () -> listingService.updateListing(request, listingId, SELLER_ID));
 
         verify(restTemplate, never()).getForObject(anyString(), eq(ListingBidStatusResponse.class));
     }
@@ -174,8 +179,75 @@ class ListingServiceTestTwo {
         )).thenReturn(response);
 
         assertThrows(IllegalStateException.class,
-                () -> listingService.updateListing(request, listingId));
+                () -> listingService.updateListing(request, listingId, SELLER_ID));
 
         verify(listingRepository, never()).save(any());
+    }
+
+    @Test
+    void updateListing_shouldThrowBadGateway_whenAuctionBidStatusIsEmpty() {
+        UpdateListingRequest request = new UpdateListingRequest();
+        request.setDescription("New description");
+
+        when(listingRepository.findById(listingId))
+                .thenReturn(Optional.of(listing));
+        when(restTemplate.getForObject(anyString(), eq(ListingBidStatusResponse.class)))
+                .thenReturn(null);
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> listingService.updateListing(request, listingId, SELLER_ID));
+
+        assertEquals(502, exception.getStatusCode().value());
+        verify(listingRepository, never()).save(any());
+    }
+
+    @Test
+    void updateListing_shouldThrowForbidden_whenSellerDoesNotOwnListing() {
+        UpdateListingRequest request = new UpdateListingRequest();
+        request.setDescription("New description");
+
+        when(listingRepository.findById(listingId))
+                .thenReturn(Optional.of(listing));
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> listingService.updateListing(request, listingId, "other-seller"));
+
+        assertEquals(403, exception.getStatusCode().value());
+        verify(restTemplate, never()).getForObject(anyString(), eq(ListingBidStatusResponse.class));
+    }
+
+    @Test
+    void getListingsBySeller_shouldMergeExactAndPrefixedSellerIds() {
+        Listing exactListing = new Listing();
+        exactListing.setId(UUID.randomUUID());
+        exactListing.setTitle("Exact seller listing");
+        exactListing.setSellerId(SELLER_ID);
+        exactListing.setStartTime(LocalDateTime.now());
+
+        Listing prefixedListing = new Listing();
+        prefixedListing.setId(UUID.randomUUID());
+        prefixedListing.setTitle("Prefixed seller listing");
+        prefixedListing.setSellerId(SELLER_ID + ",admin");
+        prefixedListing.setStartTime(LocalDateTime.now().minusDays(1));
+
+        when(listingRepository.findBySellerIdOrderByStartTimeDesc(SELLER_ID))
+                .thenReturn(List.of(exactListing));
+        when(listingRepository.findBySellerIdStartingWithOrderByStartTimeDesc(SELLER_ID + ","))
+                .thenReturn(List.of(prefixedListing, exactListing));
+
+        List<?> results = listingService.getListingsBySeller(" " + SELLER_ID + ",ignored ");
+
+        assertEquals(2, results.size());
+        verify(listingRepository).findBySellerIdOrderByStartTimeDesc(SELLER_ID);
+        verify(listingRepository).findBySellerIdStartingWithOrderByStartTimeDesc(SELLER_ID + ",");
+    }
+
+    @Test
+    void getListingsBySeller_shouldRejectBlankSellerId() {
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> listingService.getListingsBySeller(" "));
+
+        assertEquals(400, exception.getStatusCode().value());
+        verify(listingRepository, never()).findBySellerIdOrderByStartTimeDesc(anyString());
     }
 }

@@ -160,13 +160,15 @@ class ListingServiceTest {
 
         assertEquals(1, result.size());
         assertNull(result.get(0).getSellerName());
-        verify(restTemplate, never()).exchange(
+        verify(restTemplate).exchange(
                 anyString(), eq(HttpMethod.GET), any(), eq(SellerPublicProfileDTO.class));
     }
 
     @Test
     void testDeleteListing_ShouldCallRepository() {
-        listingService.deleteListing(sampleId);
+        when(listingRepository.findById(sampleId)).thenReturn(Optional.of(sampleListing));
+
+        listingService.deleteListing(sampleId, "1");
 
         verify(listingRepository, times(1)).deleteById(sampleId);
     }

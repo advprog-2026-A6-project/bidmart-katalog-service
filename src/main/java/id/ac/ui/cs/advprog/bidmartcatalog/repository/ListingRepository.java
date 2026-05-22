@@ -21,4 +21,10 @@ public interface ListingRepository extends JpaRepository<Listing, UUID>, JpaSpec
     @Override
     @EntityGraph(attributePaths = {"category"})
     List<Listing> findAll(Specification<Listing> spec);
+
+    @EntityGraph(attributePaths = {"category"})
+    List<Listing> findBySellerIdOrderByStartTimeDesc(String sellerId);
+
+    @EntityGraph(attributePaths = {"category"})
+    List<Listing> findBySellerIdStartingWithOrderByStartTimeDesc(String sellerIdPrefix);
 }
