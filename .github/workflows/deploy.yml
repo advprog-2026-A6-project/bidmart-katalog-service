@@ -60,6 +60,8 @@ jobs:
           SPRING_RABBITMQ_PASSWORD=${{ secrets.RABBITMQ_PASSWORD }}
           SPRING_RABBITMQ_VHOST=${{ secrets.RABBITMQ_VHOST }}
           SERVER_PORT=8083
+          AUCTION_SERVICE_INTERNAL_URL=${{ secrets.AUCTION_SERVICE_INTERNAL_URL }}
+          AUTH_INTERNAL_SERVICE_URL=${{ secrets.AUTH_INTERNAL_SERVICE_URL }}
           ENVEOF
 
           ssh -i ~/.ssh/ec2_key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "
