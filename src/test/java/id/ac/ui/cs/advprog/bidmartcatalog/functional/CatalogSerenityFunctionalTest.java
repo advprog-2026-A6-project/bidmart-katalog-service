@@ -17,11 +17,11 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
 
@@ -46,7 +46,7 @@ class CatalogSerenityFunctionalTest {
     @LocalServerPort
     private int port;
 
-    @MockBean
+    @MockitoBean
     private RestTemplate restTemplate;
 
     @Steps
