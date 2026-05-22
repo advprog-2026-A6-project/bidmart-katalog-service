@@ -18,6 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -111,5 +112,16 @@ class ListingControllerTest {
         mockMvc.perform(delete("/listings/{id}", sampleId)
                         .header("X-User-Id", "seller-42"))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void getMyListings_ShouldReturnSellerListings() throws Exception {
+        when(listingService.getListingsBySeller("seller-42"))
+                .thenReturn(List.of(sampleListingDto));
+
+        mockMvc.perform(get("/listings/mine")
+                        .header("X-User-Id", "seller-42"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].title").value("MacBook Pro"));
     }
 }

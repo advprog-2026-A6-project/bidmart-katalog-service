@@ -106,11 +106,7 @@ public class ListingService {
     public ListingDTO updateListing(UpdateListingRequest request, UUID listingId, String sellerId) {
         Listing listing = requireOwnedListing(listingId, sellerId);
 
-        String url = auctionServiceUrl + listingId + "/bids/status";
-        ListingBidStatusResponse response = restTemplate.getForObject(url, ListingBidStatusResponse.class);
-        assert response != null;
-
-        if (response.isHasBids()) {
+        if (listingHasBids(listingId)) {
             throw new IllegalStateException("Gagal memperbarui: Listing sudah memiliki penawaran.");
         }
 
@@ -174,13 +170,7 @@ public class ListingService {
     public void cancelListing(UUID listingId, String sellerId) {
         Listing listing = requireOwnedListing(listingId, sellerId);
 
-        String url = auctionServiceUrl + listingId + "/bids/status";
-        ListingBidStatusResponse response = restTemplate.getForObject(url, ListingBidStatusResponse.class);
-        assert response != null;
-        boolean hasBids = response.isHasBids();
-
-        if (hasBids) {
-            // throw error
+        if (listingHasBids(listingId)) {
             throw new IllegalStateException("Gagal membatalkan: Listing sudah memiliki penawaran.");
         } else {
             listing.setStatus(ListingStatus.CANCELLED);
@@ -199,6 +189,18 @@ public class ListingService {
                 );
         listing.setCurrentPrice(event.getBidAmount());
         listingRepository.save(listing);
+    }
+
+    private boolean listingHasBids(UUID listingId) {
+        String url = auctionServiceUrl + listingId + "/bids/status";
+        ListingBidStatusResponse response = restTemplate.getForObject(url, ListingBidStatusResponse.class);
+        if (response == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_GATEWAY,
+                    "Auction service returned an empty bid status response"
+            );
+        }
+        return response.isHasBids();
     }
 
     private void requireSellerId(String sellerId) {
