@@ -8,6 +8,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 import lombok.RequiredArgsConstructor;
 
 import java.math.BigDecimal;
@@ -27,8 +28,10 @@ public class ListingController {
     private final ListingService listingService;
 
     @PostMapping
-    public ResponseEntity<Listing> create(@RequestBody CreateListingRequest request,
-                                          @RequestHeader("X-User-Id") String sellerId) {
+    public ResponseEntity<Listing> create(
+            @RequestBody CreateListingRequest request,
+            @RequestHeader("X-User-Id") UUID sellerId
+    ) {
         Listing listing = listingService.createListing(request, sellerId);
         return new ResponseEntity<>(listing, HttpStatus.CREATED);
     }
@@ -62,7 +65,7 @@ public class ListingController {
     }
 
     @GetMapping("/{id}")
-    public ListingDTO getById(@PathVariable UUID id) {
+    public Listing getById(@PathVariable UUID id) {
         return listingService.getListingById(id);
     }
 
