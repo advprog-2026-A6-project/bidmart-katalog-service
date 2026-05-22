@@ -41,8 +41,19 @@ jobs:
           test -n "${SONAR_PROJECT_KEY}" || (echo "SONAR_PROJECT_KEY is not set" && exit 1)
           test -n "${SONAR_ORGANIZATION}" || (echo "SONAR_ORGANIZATION is not set" && exit 1)
 
-      - name: Test + Lint + Coverage
-        run: ./gradlew --no-daemon clean check jacocoTestReport
+      - name: Test + Lint + Coverage + Serenity
+        run: ./gradlew --no-daemon clean test functionalTest jacocoTestReport aggregate
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: catalog-test-reports
+          path: |
+            build/reports/tests/test
+            build/reports/jacoco/test
+            build/site/serenity
+          if-no-files-found: ignore
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarqube-scan-action@v6

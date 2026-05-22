@@ -12,8 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 
-import org.springframework.boot.test.mock.mockito.MockBean;
-
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
@@ -32,7 +31,7 @@ class ListingControllerTestTwo {
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @MockitoBean
     private ListingService listingService;
 
     @Autowired
@@ -80,5 +79,29 @@ class ListingControllerTestTwo {
                 get("/listings/search")
                         .param("keyword", "phone")
         ).andExpect(status().isOk());
+    }
+
+    @Test
+    void search_shouldAcceptHtmlDatetimeLocalEndBefore() throws Exception {
+        when(listingService.searchListings(
+                any(),
+                any(),
+                any(),
+                any(),
+                any()
+        )).thenReturn(List.of());
+
+        mockMvc.perform(
+                get("/listings/search")
+                        .param("endBefore", "2026-05-20T15:30")
+        ).andExpect(status().isOk());
+
+        verify(listingService).searchListings(
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                eq(java.time.LocalDateTime.of(2026, 5, 20, 15, 30, 0))
+        );
     }
 }
